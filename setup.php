@@ -34,9 +34,9 @@
  ---------------------------------------------------------------------- */
 define ('PLUGIN_TASKDROP_VERSION', '1.1.0');
 // Minimal GLPI version, inclusive
-define("PLUGIN_TASKDROP_MIN_GLPI", "9.3.0");
+define("PLUGIN_TASKDROP_MIN_GLPI", "9.2.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_TASKDROP_MAX_GLPI", "9.4");
+define("PLUGIN_TASKDROP_MAX_GLPI", "9.5");
 
 function plugin_version_taskdrop() {
    return ['name'       => 'TaskDrop',
