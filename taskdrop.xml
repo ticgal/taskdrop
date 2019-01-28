@@ -11,7 +11,7 @@
 	<en>Drag'n'dropping ticket tasks is the fastest day to schedule your recurrent tickets, and Reminders. Combine it with GLPI Reminders extension for Chrome and Firefox to reduce your planning time.</en>
       </long>
    </description>
-   <homepage>https://tic.gal/en/project/taskdrop-plugin-glpi/</homepage>
+   <homepage>https://tic.gal/en/project/taskdrop-easy-ticket-task-reminders-planning-glpi/</homepage>
    <download>https://github.com/ticgal/taskdrop/releases</download>
    <issues>https://github.com/ticgal/taskdrop/issues</issues>
    <readme>https://github.com/ticgal/taskdrop/blob/master/README.md</readme>
@@ -44,6 +44,5 @@
    <screenshots>
       <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-1.png</screenshot>
       <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-2.png</screenshot>
-      <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-3.gif</screenshot>
    </screenshots>
 </root>
