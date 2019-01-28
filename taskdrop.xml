@@ -8,7 +8,7 @@
 	<en>Enables drag'n'drop for not scheduled ticket tasks and reminders</en>
       </short>
       <long>
-	<en>Drag'n'dropping ticket tasks is the fastest day to schedule your recurrent tickets, and Reminders. Combine it with GLPI Reminders extension for Chrome and Firefox to reduce your planning time.</en>
+	<en>Drag'n'dropping ticket tasks is the fastest and efficient way to schedule your recurrent tickets, and Reminders. Combine it with GLPI Reminders extension for Chrome and Firefox to reduce your planning time.</en>
       </long>
    </description>
    <homepage>https://tic.gal/en/project/taskdrop-easy-ticket-task-reminders-planning-glpi/</homepage>
