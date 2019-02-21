@@ -42,8 +42,8 @@ function plugin_version_taskdrop() {
    return ['name'       => 'TaskDrop',
       'version'        => PLUGIN_TASKDROP_VERSION,
       'author'         => '<a href="https://tic.gal">TICgal</a>',
-      'homepage'       => 'https://tic.gal',
-      'license'        => 'GPLv3+',
+      'homepage'       => 'https://tic.gal/en/project/taskdrop-easy-ticket-task-reminders-planning-glpi/',
+      'license'        => 'AGPLv3+',
       'minGlpiVersion' => "9.3",
       'requirements'   => [
          'glpi'   => [
