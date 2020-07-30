@@ -67,7 +67,7 @@ if ($_REQUEST["action"]=="add_task") {
 
    $event=['title'=>$row['name'],
             'content'=>$row['content'],
-            'start'=>$_REQUEST['start'],
+            'start'=>date("Y-m-d H:i",strtotime($_REQUEST['start'])),
             'end'=>$end,
             'url'=>'/front/ticket.form.php?id='.$row['tickets_id'],
             'itemtype'=>'TicketTask',
@@ -81,15 +81,9 @@ if ($_REQUEST["action"]=="add_task") {
        $actiontime=1800;
    }
 
-   $DB->update(
-      'glpi_tickettasks', [
-         'begin'=>$_REQUEST['start'],
-         'end'=>$end,
-         'actiontime'=>$actiontime,
-      ], [
-         'id'=>$_REQUEST["id"]
-      ]
-   );
+   $tickettask=new TicketTask();
+   $tickettask->getFromDB($_REQUEST["id"]);
+   $tickettask->update(['id'=>$_REQUEST["id"],'begin'=>date("Y-m-d H:i",strtotime($_REQUEST['start'])),'end'=>$end,'actiontime'=>$actiontime,'users_id_tech'=>$tickettask->fields['users_id_tech']]);
 
    echo json_encode($event);
 } else {
