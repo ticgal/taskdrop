@@ -1,6 +1,6 @@
 <root>
    <name>Task'n'Drop</name>
-   <key>TaskDrop</key>
+   <key>taskdrop</key>
    <state>stable</state> <!-- stable | unstable | beta | alpha -->
    <logo>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/taskdrop.png</logo>
    <description>
