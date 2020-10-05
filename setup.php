@@ -34,9 +34,9 @@
  ---------------------------------------------------------------------- */
 define ('PLUGIN_TASKDROP_VERSION', '1.1.0');
 // Minimal GLPI version, inclusive
-define("PLUGIN_TASKDROP_MIN_GLPI", "9.2.0");
+define("PLUGIN_TASKDROP_MIN_GLPI", "9.5.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_TASKDROP_MAX_GLPI", "9.5");
+define("PLUGIN_TASKDROP_MAX_GLPI", "9.6");
 
 function plugin_version_taskdrop() {
    return ['name'       => 'TaskDrop',
@@ -44,37 +44,13 @@ function plugin_version_taskdrop() {
       'author'         => '<a href="https://tic.gal">TICgal</a>',
       'homepage'       => 'https://tic.gal/en/project/taskdrop-easy-ticket-task-reminders-planning-glpi/',
       'license'        => 'AGPLv3+',
-      'minGlpiVersion' => "9.3",
+      'minGlpiVersion' => PLUGIN_TASKDROP_MIN_GLPI,
       'requirements'   => [
          'glpi'   => [
             'min' => PLUGIN_TASKDROP_MIN_GLPI,
             'max' => PLUGIN_TASKDROP_MAX_GLPI,
          ]
       ]];
-}
-
-/**
- * Check plugin's prerequisites before installation
- */
-function plugin_taskdrop_check_prerequisites() {
-
-   if (!method_exists('Plugin', 'checkGlpiVersion')) {
-      $version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-      $matchMinGlpiReq = version_compare($version, PLUGIN_TASKDROP_MIN_GLPI, '>=');
-      $matchMaxGlpiReq = version_compare($version, PLUGIN_TASKDROP_MAX_GLPI, '<');
-      if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
-         echo vsprintf(
-            'This plugin requires GLPI >= %1$s and < %2$s.',
-            [
-               PLUGIN_TASKDROP_MIN_GLPI,
-               PLUGIN_TASKDROP_MAX_GLPI,
-            ]
-         );
-         return false;
-      }
-   }
-
-   return true;
 }
 
 /**

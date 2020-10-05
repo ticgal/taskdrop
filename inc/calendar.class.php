@@ -58,7 +58,7 @@ class PluginTaskdropCalendar extends CommonDBTM{
                   ]
                ];
                foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-container' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_task'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
+                  $div.="<div class='fc-event-external event_type' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_task'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
                }
             }
          }else{
@@ -74,7 +74,7 @@ class PluginTaskdropCalendar extends CommonDBTM{
 	                  ]
 	               ];
 	               foreach ($DB->request($query) as $id => $row) {
-	                  $div.="<div class='fc-event-container' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_task'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
+	                  $div.="<div class='fc-event-external' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_task'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
 	               }
          		}
          	}
@@ -100,7 +100,7 @@ class PluginTaskdropCalendar extends CommonDBTM{
                   ]
                ];
                foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-container' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_reminder'>".Toolbox::addslashes_deep(HTML::clean($row['name']))."</div>";
+                  $div.="<div class='fc-event-external' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_reminder'>".Toolbox::addslashes_deep(HTML::clean($row['name']))."</div>";
                }
             }
          }
@@ -115,56 +115,45 @@ class PluginTaskdropCalendar extends CommonDBTM{
       if ($options['itemtype']!='Planning') {
          return;
       }
-      $div="<div id='external-events-listing'>";
+      $div="<div id='external-events'>";
       $div.=self::addTask();
       $div.=self::addReminder();
       $div.="</div>";
 
-      $ajax_url=$CFG_GLPI['root_doc']."/plugins/taskdrop/ajax/planning.php";
+      $ajax_url=Plugin::getWebDir('taskdrop')."/ajax/planning.php";
 
       $script=<<<JAVASCRIPT
 		$(document).ready(function() {
 
-         $('#planning_filter').append("{$div}");
+         $('#planning_filter_content').append("{$div}");
 
-         $('#planning_filter').css('overflow-y','visible');
-
-         $('#external-events-listing .fc-event-container').each(function() {
-
-            $(this).draggable({
-               zIndex: 999,
-               revert: true,
-               revertDuration: 0
-            });
-
+			var Draggable = FullCalendarInteraction.Draggable;
+			var containerEl = document.getElementById('external-events');
+			new Draggable(containerEl, {
+				itemSelector: '.fc-event-external',
 			});
 
-			$('#planning').fullCalendar('option', {
-			   editable: true,
-            droppable: true,
-            dropAccept:'.fc-event-container',
-            dragRevertDuration: 0,
-            drop: function(date) {
-            	var target=$(this);
-            	$.ajax({
-            		url: '{$ajax_url}',
-            		type: 'POST',
-            		data:{
-            			action: $(this).attr('action'),
-            			start: date.format(),
-            			id: $(this).attr('tid')
-            		},
-            		success: function(event){
-            			target.data('event',JSON.parse(event));
-            			$('#planning').fullCalendar('renderEvent', JSON.parse(event));
-            			$('#planning').fullCalendar('refetchEvents');
-            		},
-	               error: function(xhr) {
-	                  alert('An error occured: '+ xhr.status + ' ' + xhr.statusText);
-	               }
-            	});
-            	$(this).remove();
-            }
+			GLPIPlanning.calendar.setOption('editable',true);
+			GLPIPlanning.calendar.setOption('droppable',true);
+			GLPIPlanning.calendar.setOption('dropAccept','.fc-event-external');
+			GLPIPlanning.calendar.setOption('dragRevertDuration',0);
+			GLPIPlanning.calendar.on('drop',function(dropInfo){
+				$.ajax({
+					url: '{$ajax_url}',
+					type: 'POST',
+					data:{
+						action: $(dropInfo.draggedEl).attr('action'),
+						start: dropInfo.date.toISOString(),
+						id: $(dropInfo.draggedEl).attr('tid')
+					},
+					success: function(event){
+                  $(dropInfo.draggedEl).remove();
+						GLPIPlanning.refresh();
+					},
+					error: function(xhr) {
+						alert('An error occured: '+ xhr.status + ' ' + xhr.statusText);
+					}
+				});
 			});
 
 			$('#planning_filter li.user input[type="checkbox"],#planning_filter li.group input[type="checkbox"]').on('click',function(){
@@ -176,18 +165,18 @@ class PluginTaskdropCalendar extends CommonDBTM{
 	                  action:  'update_task'
 	               },
 	               success: function(div) {
-							$('#external-events-listing').html(div);
-							$('#external-events-listing .fc-event-container').each(function() {
-				            $(this).draggable({
-				               zIndex: 999,
-               				revert: true,
-               				revertDuration: 0
-				            });
-							});
+							$('#external-events').html(div);
 	               }
 	            });
 				},500);
 			});
+         $('#'+GLPIPlanning.dom_id+' .fc-toolbar .fc-center h2')
+            .after(
+               $('<i id="refresh_planning" class="fa fa-sync pointer"></i>')
+            ).after(
+               $('<div id="planning_datepicker"><a data-toggle><i class="far fa-calendar-alt fa-lg pointer"></i></a>')
+            );
+         GLPIPlanning.initFCDatePicker();
       });
 JAVASCRIPT;
       echo Html::scriptBlock($script);
