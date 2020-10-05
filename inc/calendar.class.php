@@ -170,6 +170,13 @@ class PluginTaskdropCalendar extends CommonDBTM{
 	            });
 				},500);
 			});
+         $('#'+GLPIPlanning.dom_id+' .fc-toolbar .fc-center h2')
+            .after(
+               $('<i id="refresh_planning" class="fa fa-sync pointer"></i>')
+            ).after(
+               $('<div id="planning_datepicker"><a data-toggle><i class="far fa-calendar-alt fa-lg pointer"></i></a>')
+            );
+         GLPIPlanning.initFCDatePicker();
       });
 JAVASCRIPT;
       echo Html::scriptBlock($script);
