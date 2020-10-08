@@ -20,25 +20,28 @@
    </authors>
    <versions>
       <version>
-	<num>1.1.0</num>
-	<compatibility>9.2</compatibility>
-	<compatibility>9.3</compatibility>
-	<compatibility>9.4</compatibility>
+         <num>1.2.0</num>
+         <compatibility>~9.5.0</compatibility>
+         <download_url>https://github.com/ticgal/taskdrop/releases/download/1.2.0/glpi-taskdrop-1.2.0.tar.tgz</download_url>
+      </version>
+      <version>
+         <num>1.1.0</num>
+         <compatibility>9.2</compatibility>
+         <compatibility>9.3</compatibility>
+         <compatibility>9.4</compatibility>
       </version>
    </versions>
    <langs>
       <lang>en_GB</lang>
       <lang>gl_ES</lang>
       <lang>es_ES</lang>
-      <lang>fr_FR</lang>
-      <lang>pt_BR</lang>
    </langs>
    <license>AGPL v3+</license>
    <tags>
       <en>
-	<tag>Management</tag>
-    	<tag>Calendar</tag>
-	<tag>Reminder</tag>
+         <tag>Management</tag>
+         <tag>Calendar</tag>
+         <tag>Reminder</tag>
       </en>
    </tags>
    <screenshots>
