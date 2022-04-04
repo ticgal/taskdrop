@@ -7,7 +7,7 @@
 [![Web](https://img.shields.io/badge/Web-TICgal-blue.svg?style=flat-square)](https://tic.gal/)
 
 ## English
-Enables drag'n'drop for not scheduled ticket tasks and reminders
+Enables drag'n'drop for not scheduled ticket tasks, change tasks and reminders
 ### Setup
 Install like any other GLPI plugin.
 No additional setup is needed
