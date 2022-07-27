@@ -32,7 +32,7 @@
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
-define ('PLUGIN_TASKDROP_VERSION', '1.2.0');
+define ('PLUGIN_TASKDROP_VERSION', '1.3.0');
 // Minimal GLPI version, inclusive
 define("PLUGIN_TASKDROP_MIN_GLPI", "9.5.0");
 // Maximum GLPI version, exclusive

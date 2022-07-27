@@ -39,7 +39,7 @@ if (!isset($_REQUEST["action"])) {
    exit;
 }
 
-if ($_REQUEST["action"]=="add_task") {
+if ($_REQUEST["action"]=="add_tickettask") {
 
    $query=[
       'SELECT'=>[
@@ -86,6 +86,55 @@ if ($_REQUEST["action"]=="add_task") {
    $tickettask->update(['id'=>$_REQUEST["id"],'begin'=>date("Y-m-d H:i",strtotime($_REQUEST['start'])),'end'=>$end,'actiontime'=>$actiontime,'users_id_tech'=>$tickettask->fields['users_id_tech']]);
 
    echo json_encode($event);
+
+} elseif ($_REQUEST["action"]=="add_changetask") {
+
+   $query=[
+      'SELECT'=>[
+         'glpi_changetasks.*',
+         'glpi_changes.name',
+      ],
+      'FROM'=>'glpi_changetasks',
+      'LEFT JOIN'=>[
+         'glpi_changes'=>[
+            'FKEY'=>[
+               'glpi_changes'=>'id',
+               'glpi_changetasks'=>'changes_id',
+            ]
+         ]
+      ],
+      'WHERE'=>[
+         'glpi_changetasks.id'=>$_REQUEST["id"],
+      ]
+   ];
+
+   $req=$DB->request($query);
+   $row=$req->next();
+
+   $end=($row['actiontime'] >0 ? date("Y-m-d H:i", strtotime($_REQUEST['start']." +".$row['actiontime']." seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start']." +30 minutes")));
+
+   $event=['title'=>$row['name'],
+            'content'=>$row['content'],
+            'start'=>date("Y-m-d H:i",strtotime($_REQUEST['start'])),
+            'end'=>$end,
+            'url'=>'/front/change.form.php?id='.$row['changes_id'],
+            'itemtype'=>'ChangeTask',
+            'items_id'=>$_REQUEST["id"],
+            'state'=>$row['state']
+   ];
+   
+   if ($row['actiontime'] >0) {
+       $actiontime=$row['actiontime'];
+   }else{
+       $actiontime=1800;
+   }
+
+   $changetask=new ChangeTask();
+   $changetask->getFromDB($_REQUEST["id"]);
+   $changetask->update(['id'=>$_REQUEST["id"],'begin'=>date("Y-m-d H:i",strtotime($_REQUEST['start'])),'end'=>$end,'actiontime'=>$actiontime,'users_id_tech'=>$changetask->fields['users_id_tech']]);
+
+   echo json_encode($event);
+   
 } else {
    if ($_REQUEST["action"]=="update_task") {
       $div= PluginTaskdropCalendar::addTask();

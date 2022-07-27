@@ -58,7 +58,18 @@ class PluginTaskdropCalendar extends CommonDBTM{
                   ]
                ];
                foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-external event_type' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_task'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
+                  $div.="<div class='fc-event-external event_type' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_tickettask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
+               }
+               $query=[
+                  'FROM'=> 'glpi_changetasks',
+                  'WHERE'=>[
+                     'state'=>1,
+                     'begin'=>null,
+                     'users_id_tech'=>$actor[1],
+                  ]
+               ];
+               foreach ($DB->request($query) as $id => $row) {
+                  $div.="<div class='fc-event-external event_type' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_changetask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
                }
             }
          }else{
@@ -74,7 +85,18 @@ class PluginTaskdropCalendar extends CommonDBTM{
 	                  ]
 	               ];
 	               foreach ($DB->request($query) as $id => $row) {
-	                  $div.="<div class='fc-event-external' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_task'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
+	                  $div.="<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_tickettask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
+	               }
+         			$query=[
+	                  'FROM'=>'glpi_changetasks',
+	                  'WHERE'=>[
+	                     'state'=>1,
+	                     'begin'=>null,
+	                     'groups_id_tech'=>$group[1],
+	                  ]
+	               ];
+	               foreach ($DB->request($query) as $id => $row) {
+	                  $div.="<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_changetask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
 	               }
          		}
          	}
@@ -100,7 +122,7 @@ class PluginTaskdropCalendar extends CommonDBTM{
                   ]
                ];
                foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-external' style='padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_reminder'>".Toolbox::addslashes_deep(HTML::clean($row['name']))."</div>";
+                  $div.="<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_reminder'>".Toolbox::addslashes_deep(HTML::clean($row['name']))."</div>";
                }
             }
          }
