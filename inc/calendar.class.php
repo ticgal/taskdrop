@@ -1,8 +1,9 @@
 <?php
+
 /*
- -------------------------------------------------------------------------
+-------------------------------------------------------------------------
  Task&drop plugin for GLPI
- Copyright (C) 2018 by the TICgal Team.
+ Copyright (C) 2024 by the TICgal Team.
 
  https://github.com/ticgal/Task&drop
  -------------------------------------------------------------------------
@@ -25,126 +26,156 @@
  along with Task&drop. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  @package   Task&drop
- @author    the TICgal team
- @copyright Copyright (c) 2018 TICgal team
+ @author    the TICgal team & ITSM Factory
+ @copyright Copyright (c) 2018-2024 TICgal team & 2024 ITSM Factory
  @license   AGPL License 3.0 or (at your option) any later version
             http://www.gnu.org/licenses/agpl-3.0-standalone.html
- @link      https://tic.gal
- @since     2018
+ @link      https://tic.gal & https://itsm-factory.com/
+ @since     2018-2024
  ---------------------------------------------------------------------- */
 
-class PluginTaskdropCalendar extends CommonDBTM{
+class PluginTaskdropCalendar extends CommonDBTM
+{
+    public static $rightname = 'calendar';
 
-   public static $rightname = 'calendar';
+    static function getTypeName($nb = 0)
+    {
+        return __('TaskDrop', 'TaskDrop');
+    }
 
-   static function getTypeName($nb = 0) {
-      return __('TaskDrop', 'TaskDrop');
-   }
+    static function addTask()
+    {
+        global $DB;
 
-   static function addTask() {
-      global $DB;
-
-      $div="<h3>".__('Plan this task')."</h3>";
-      foreach ($_SESSION['glpi_plannings']['plannings'] as $key => $value) {
-         if (preg_match('/^user_/', $key)) {
-            if ($value['display']==1) {
-               $actor = explode('_', $key);
-               $query=[
-                  'FROM'=>'glpi_tickettasks',
-                  'WHERE'=>[
-                     'state'=>1,
-                     'begin'=>null,
-                     'users_id_tech'=>$actor[1],
-                  ]
-               ];
-               foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-external event_type' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_tickettask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
-               }
-               $query=[
-                  'FROM'=> 'glpi_changetasks',
-                  'WHERE'=>[
-                     'state'=>1,
-                     'begin'=>null,
-                     'users_id_tech'=>$actor[1],
-                  ]
-               ];
-               foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-external event_type' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_changetask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
-               }
+        $div = "<h3>" . __('Plan this task') . "</h3>";
+        foreach ($_SESSION['glpi_plannings']['plannings'] as $key => $value) {
+            if (preg_match('/^user_/', $key)) {
+                if ($value['display'] == 1) {
+                    $actor = explode('_', $key);
+                    $query = [
+                    'SELECT' => ['glpi_tickettasks.content AS task_content' , 'glpi_tickettasks.id AS task_id'],
+                    'FROM' => 'glpi_tickettasks',
+                    'INNER JOIN' => [
+                     'glpi_tickets' => [
+                        'FKEY' => [
+                           'glpi_tickettasks' => 'tickets_id', 'glpi_tickets' => 'id',
+                           ]
+                        ],
+                    ],
+                    'WHERE' => [
+                     'state' => 1,
+                     'begin' => null,
+                     'users_id_tech' => $actor[1],
+                     'glpi_tickets.status' => ['<', 5]
+                    ]
+                    ];
+                    foreach ($DB->request($query, '', true) as $id => $row) {
+                        $rand = rand();
+                        $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
+                        $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
+                        $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
+                      //$div .= Html::showToolTip($row['task_content'], ['linkid' => 'task_'.$rand, 'display' => false]);
+                    }
+                    $query = [
+                    'FROM' => 'glpi_changetasks',
+                    'WHERE' => [
+                     'state' => 1,
+                     'begin' => null,
+                     'users_id_tech' => $actor[1],
+                    ]
+                    ];
+                    foreach ($DB->request($query) as $id => $row) {
+                        Toolbox::logInFile('taskndrop2', print_r($row, true));
+                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
+                    }
+                }
+            } else {
+                if (preg_match('/^group_/', $key)) {
+                    if ($value['display'] == 1) {
+                        $group = explode('_', $key);
+                        $query = [
+                        'SELECT' => ['glpi_tickettasks.content AS task_content' , 'glpi_tickettasks.id AS task_id'],
+                        'FROM' => 'glpi_tickettasks',
+                        'INNER JOIN' => [
+                        'glpi_tickets' => [
+                           'FKEY' => [
+                              'glpi_tickettasks' => 'tickets_id', 'glpi_tickets' => 'id',
+                              ]
+                           ],
+                        ],
+                        'WHERE' => [
+                        'state' => 1,
+                        'begin' => null,
+                        'groups_id_tech' => $group[1],
+                        'glpi_tickets.status' => ['<', 5]
+                        ]
+                        ];
+                        foreach ($DB->request($query) as $id => $row) {
+                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-height:150px;max-width:400px;cursor:grab;padding:2px;margin:2px;background-color: " ;
+                            $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>" ;
+                            $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
+                        }
+                        $query = [
+                        'FROM' => 'glpi_changetasks',
+                        'WHERE' => [
+                        'state' => 1,
+                        'begin' => null,
+                        'groups_id_tech' => $group[1],
+                        ]
+                        ];
+                        foreach ($DB->request($query) as $id => $row) {
+                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
+                        }
+                    }
+                }
             }
-         }else{
-         	if (preg_match('/^group_/', $key)) {
-         		if ($value['display']==1) {
-         			$group=explode('_', $key);
-         			$query=[
-	                  'FROM'=>'glpi_tickettasks',
-	                  'WHERE'=>[
-	                     'state'=>1,
-	                     'begin'=>null,
-	                     'groups_id_tech'=>$group[1],
-	                  ]
-	               ];
-	               foreach ($DB->request($query) as $id => $row) {
-	                  $div.="<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_tickettask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
-	               }
-         			$query=[
-	                  'FROM'=>'glpi_changetasks',
-	                  'WHERE'=>[
-	                     'state'=>1,
-	                     'begin'=>null,
-	                     'groups_id_tech'=>$group[1],
-	                  ]
-	               ];
-	               foreach ($DB->request($query) as $id => $row) {
-	                  $div.="<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_changetask'>".Toolbox::addslashes_deep(HTML::clean($row['content']))."</div>";
-	               }
-         		}
-         	}
-         }
-      }
-      return $div;
-   }
+        }
+        return $div;
+    }
 
-   static function addReminder() {
-      global $DB;
 
-      $div="<h3>".__('Planning reminder')."</h3>";
-      foreach ($_SESSION['glpi_plannings']['plannings'] as $key => $value) {
-         if (preg_match('/^user_/', $key)) {
-            if ($value['display']==1) {
-               $actor = explode('_', $key);
-               $query=[
-                  'FROM'=>'glpi_reminders',
-                  'WHERE'=>[
-                     'state'=>1,
-                     'begin'=>null,
-                     'users_id'=>$actor[1],
-                  ]
-               ];
-               foreach ($DB->request($query) as $id => $row) {
-                  $div.="<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: ".$value['color'].";' tid=".$row['id']." action='add_reminder'>".Toolbox::addslashes_deep(HTML::clean($row['name']))."</div>";
-               }
+    static function addReminder()
+    {
+        global $DB;
+
+        $div = "<h3>" . __('Planning reminder') . "</h3>";
+        foreach ($_SESSION['glpi_plannings']['plannings'] as $key => $value) {
+            if (preg_match('/^user_/', $key)) {
+                if ($value['display'] == 1) {
+                    $actor = explode('_', $key);
+                    $query = [
+                    'FROM' => 'glpi_reminders',
+                    'WHERE' => [
+                     'state' => 1,
+                     'begin' => null,
+                     'users_id' => $actor[1],
+                    ]
+                    ];
+                    foreach ($DB->request($query) as $id => $row) {
+                        $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['name'])) . "</div>";
+                    }
+                }
             }
-         }
-      }
-      return $div;
-   }
+        }
+        return $div;
+    }
 
-   static function listTask($params) {
-      global $CFG_GLPI;
+    static function listTask($params)
+    {
+        global $CFG_GLPI;
 
-      $options=$params['options'];
-      if ($options['itemtype']!='Planning') {
-         return;
-      }
-      $div="<div id='external-events'>";
-      $div.=self::addTask();
-      $div.=self::addReminder();
-      $div.="</div>";
+        $options = $params['options'];
+        if ($options['itemtype'] != 'Planning') {
+            return;
+        }
+        $div = "<div id='external-events'>";
+        $div .= self::addTask();
+        $div .= self::addReminder();
+        $div .= "</div>";
 
-      $ajax_url=Plugin::getWebDir('taskdrop')."/ajax/planning.php";
+        $ajax_url = Plugin::getWebDir('taskdrop') . "/ajax/planning.php";
 
-      $script=<<<JAVASCRIPT
+        $script = <<<JAVASCRIPT
 		$(document).ready(function() {
 
          $('#planning_filter_content').append("{$div}");
@@ -201,6 +232,6 @@ class PluginTaskdropCalendar extends CommonDBTM{
          GLPIPlanning.initFCDatePicker();
       });
 JAVASCRIPT;
-      echo Html::scriptBlock($script);
-   }
+        echo Html::scriptBlock($script);
+    }
 }
