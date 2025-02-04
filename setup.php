@@ -33,7 +33,7 @@
  @link      https://tic.gal & https://itsm-factory.com/
  @since     2018-2024
  ---------------------------------------------------------------------- */
-define('PLUGIN_TASKDROP_VERSION', '2.1.0');
+define('PLUGIN_TASKDROP_VERSION', '2.1.1');
 // Minimal GLPI version, inclusive
 define("PLUGIN_TASKDROP_MIN_GLPI", "10.0");
 // Maximum GLPI version, exclusive

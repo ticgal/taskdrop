@@ -1,6 +1,10 @@
 # Task'n'drop
 The Task'n'drop plugin for GLPI
 
+## 2.1.1 - 2025-02-04
+### Bugfixes
+- Fix sanitize errors
+
 ## 2.1.0 - 2024-10-22
 ### Features
 - Ticket tasks of non solved tickets
