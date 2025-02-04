@@ -34,6 +34,9 @@
  @since     2018-2024
  ---------------------------------------------------------------------- */
 
+use Glpi\RichText\RichText;
+use Glpi\Toolbox\Sanitizer;
+
 class PluginTaskdropCalendar extends CommonDBTM
 {
     public static $rightname = 'calendar';
@@ -73,8 +76,10 @@ class PluginTaskdropCalendar extends CommonDBTM
                         $rand = rand();
                         $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
                         $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
-                        $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
+                        //$div .= Sanitizer::unsanitize($row['task_content']) . "</div>"; 
+                        $div .= Toolbox::addslashes_deep(Toolbox::stripTags(Sanitizer::unsanitize($row['task_content']))) /*Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content']))*/ . "</div>";
                       //$div .= Html::showToolTip($row['task_content'], ['linkid' => 'task_'.$rand, 'display' => false]);
+                        Toolbox::logInFile('planning', print_r($div, true));
                     }
                     $query = [
                     'FROM' => 'glpi_changetasks',
@@ -85,7 +90,6 @@ class PluginTaskdropCalendar extends CommonDBTM
                     ]
                     ];
                     foreach ($DB->request($query) as $id => $row) {
-                        Toolbox::logInFile('taskndrop2', print_r($row, true));
                         $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
                     }
                 }

@@ -39,40 +39,40 @@ include("../../../inc/includes.php");
 if (!isset($_REQUEST["action"])) {
     exit;
 }
-
 if ($_REQUEST["action"] == "add_tickettask") {
     $query = [
-      'SELECT' => [
-         'glpi_tickettasks.*',
-         'glpi_tickets.name',
-      ],
-      'FROM' => 'glpi_tickettasks',
-      'LEFT JOIN' => [
-         'glpi_tickets' => [
-            'FKEY' => [
-               'glpi_tickets' => 'id',
-               'glpi_tickettasks' => 'tickets_id',
+        'SELECT' => [
+            'glpi_tickettasks.*',
+            'glpi_tickets.name',
+        ],
+        'FROM' => 'glpi_tickettasks',
+        'LEFT JOIN' => [
+            'glpi_tickets' => [
+                'FKEY' => [
+                    'glpi_tickets' => 'id',
+                    'glpi_tickettasks' => 'tickets_id',
+                ]
             ]
-         ]
-      ],
-      'WHERE' => [
-         'glpi_tickettasks.id' => $_REQUEST["id"],
-      ]
+        ],
+        'WHERE' => [
+            'glpi_tickettasks.id' => $_REQUEST["id"],
+        ]
     ];
 
     $req = $DB->request($query);
-    $row = $req->next();
+    $row = $req->current();
 
     $end = ($row['actiontime'] > 0 ? date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +" . $row['actiontime'] . " seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes")));
 
-    $event = ['title' => $row['name'],
-            'content' => $row['content'],
-            'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-            'end' => $end,
-            'url' => '/front/ticket.form.php?id=' . $row['tickets_id'],
-            'itemtype' => 'TicketTask',
-            'items_id' => $_REQUEST["id"],
-            'state' => $row['state']
+    $event = [
+        'title' => $row['name'],
+        'content' =>  Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])),
+        'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
+        'end' => $end,
+        'url' => '/front/ticket.form.php?id=' . $row['tickets_id'],
+        'itemtype' => 'TicketTask',
+        'items_id' => $_REQUEST["id"],
+        'state' => $row['state']
     ];
 
     if ($row['actiontime'] > 0) {
@@ -83,27 +83,27 @@ if ($_REQUEST["action"] == "add_tickettask") {
 
     $tickettask = new TicketTask();
     $tickettask->getFromDB($_REQUEST["id"]);
-    $tickettask->update(['id' => $_REQUEST["id"],'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),'end' => $end,'actiontime' => $actiontime,'users_id_tech' => $tickettask->fields['users_id_tech']]);
+    $tickettask->update(['id' => $_REQUEST["id"], 'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])), 'end' => $end, 'actiontime' => $actiontime, 'users_id_tech' => $tickettask->fields['users_id_tech']]);
 
     echo json_encode($event);
 } elseif ($_REQUEST["action"] == "add_changetask") {
     $query = [
-      'SELECT' => [
-         'glpi_changetasks.*',
-         'glpi_changes.name',
-      ],
-      'FROM' => 'glpi_changetasks',
-      'LEFT JOIN' => [
-         'glpi_changes' => [
-            'FKEY' => [
-               'glpi_changes' => 'id',
-               'glpi_changetasks' => 'changes_id',
+        'SELECT' => [
+            'glpi_changetasks.*',
+            'glpi_changes.name',
+        ],
+        'FROM' => 'glpi_changetasks',
+        'LEFT JOIN' => [
+            'glpi_changes' => [
+                'FKEY' => [
+                    'glpi_changes' => 'id',
+                    'glpi_changetasks' => 'changes_id',
+                ]
             ]
-         ]
-      ],
-      'WHERE' => [
-         'glpi_changetasks.id' => $_REQUEST["id"],
-      ]
+        ],
+        'WHERE' => [
+            'glpi_changetasks.id' => $_REQUEST["id"],
+        ]
     ];
 
     $req = $DB->request($query);
@@ -111,14 +111,15 @@ if ($_REQUEST["action"] == "add_tickettask") {
 
     $end = ($row['actiontime'] > 0 ? date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +" . $row['actiontime'] . " seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes")));
 
-    $event = ['title' => $row['name'],
-            'content' => $row['content'],
-            'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-            'end' => $end,
-            'url' => '/front/change.form.php?id=' . $row['changes_id'],
-            'itemtype' => 'ChangeTask',
-            'items_id' => $_REQUEST["id"],
-            'state' => $row['state']
+    $event = [
+        'title' => $row['name'],
+        'content' => $row['content'],
+        'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
+        'end' => $end,
+        'url' => '/front/change.form.php?id=' . $row['changes_id'],
+        'itemtype' => 'ChangeTask',
+        'items_id' => $_REQUEST["id"],
+        'state' => $row['state']
     ];
 
     if ($row['actiontime'] > 0) {
@@ -129,35 +130,42 @@ if ($_REQUEST["action"] == "add_tickettask") {
 
     $changetask = new ChangeTask();
     $changetask->getFromDB($_REQUEST["id"]);
-    $changetask->update(['id' => $_REQUEST["id"],'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),'end' => $end,'actiontime' => $actiontime,'users_id_tech' => $changetask->fields['users_id_tech']]);
+    $changetask->update(['id' => $_REQUEST["id"], 'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])), 'end' => $end, 'actiontime' => $actiontime, 'users_id_tech' => $changetask->fields['users_id_tech']]);
 
     echo json_encode($event);
 } else {
     if ($_REQUEST["action"] == "update_task") {
         $div = PluginTaskdropCalendar::addTask();
         $div .= PluginTaskdropCalendar::addReminder();
-        echo $div;
+
+        $script = <<<JAVASCRIPT
+		$(document).ready(function() {
+
+        $('#external-events').empty().append("{$div}");
+        });
+JAVASCRIPT;
+        echo Html::scriptBlock($script);
     } else {
         if ($_REQUEST["action"] == "add_reminder") {
             $end = date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes"));
             $DB->update(
                 'glpi_reminders',
                 [
-                'begin' => $_REQUEST['start'],
-                'end' => $end,
-                'is_planned' => 1
+                    'begin' => $_REQUEST['start'],
+                    'end' => $end,
+                    'is_planned' => 1
                 ],
                 [
-                'id' => $_REQUEST["id"]
+                    'id' => $_REQUEST["id"]
                 ]
             );
             $event = [
-             'start' => $_REQUEST['start'],
-             'end' => $end,
-             'url' => '/front/reminder.form.php?id=' . $_REQUEST["id"],
-             'itemtype' => 'Reminder',
-             'items_id' => $_REQUEST["id"],
-             'state' => 1
+                'start' => $_REQUEST['start'],
+                'end' => $end,
+                'url' => '/front/reminder.form.php?id=' . $_REQUEST["id"],
+                'itemtype' => 'Reminder',
+                'items_id' => $_REQUEST["id"],
+                'state' => 1
             ];
             echo json_encode($event);
         }
