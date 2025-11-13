@@ -34,9 +34,6 @@
  @since     2018-2024
  ---------------------------------------------------------------------- */
 
-use Glpi\RichText\RichText;
-use Glpi\Toolbox\Sanitizer;
-
 class PluginTaskdropCalendar extends CommonDBTM
 {
     public static $rightname = 'calendar';
@@ -56,40 +53,40 @@ class PluginTaskdropCalendar extends CommonDBTM
                 if ($value['display'] == 1) {
                     $actor = explode('_', $key);
                     $query = [
-                    'SELECT' => ['glpi_tickettasks.content AS task_content' , 'glpi_tickettasks.id AS task_id'],
-                    'FROM' => 'glpi_tickettasks',
-                    'INNER JOIN' => [
-                     'glpi_tickets' => [
-                        'FKEY' => [
-                           'glpi_tickettasks' => 'tickets_id', 'glpi_tickets' => 'id',
-                           ]
+                        'SELECT' => ['glpi_tickettasks.content AS task_content', 'glpi_tickettasks.id AS task_id'],
+                        'FROM' => 'glpi_tickettasks',
+                        'INNER JOIN' => [
+                            'glpi_tickets' => [
+                                'FKEY' => [
+                                    'glpi_tickettasks' => 'tickets_id',
+                                    'glpi_tickets' => 'id',
+                                ]
+                            ],
                         ],
-                    ],
-                    'WHERE' => [
-                     'state' => 1,
-                     'begin' => null,
-                     'users_id_tech' => $actor[1],
-                     'glpi_tickets.status' => ['<', 5]
-                    ]
+                        'WHERE' => [
+                            'state' => 1,
+                            'begin' => null,
+                            'users_id_tech' => $actor[1],
+                            'glpi_tickets.status' => ['<', 5]
+                        ]
                     ];
                     foreach ($DB->request($query, '', true) as $id => $row) {
                         $rand = rand();
                         $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
                         $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
-                        //$div .= Sanitizer::unsanitize($row['task_content']) . "</div>"; 
-                        $div .= Toolbox::addslashes_deep(Toolbox::stripTags(Sanitizer::unsanitize($row['task_content']))) /*Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content']))*/ . "</div>";
-                      //$div .= Html::showToolTip($row['task_content'], ['linkid' => 'task_'.$rand, 'display' => false]);
-                        Toolbox::logInFile('planning', print_r($div, true));
+                        $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
+                        //$div .= Html::showToolTip($row['task_content'], ['linkid' => 'task_'.$rand, 'display' => false]);
                     }
                     $query = [
-                    'FROM' => 'glpi_changetasks',
-                    'WHERE' => [
-                     'state' => 1,
-                     'begin' => null,
-                     'users_id_tech' => $actor[1],
-                    ]
+                        'FROM' => 'glpi_changetasks',
+                        'WHERE' => [
+                            'state' => 1,
+                            'begin' => null,
+                            'users_id_tech' => $actor[1],
+                        ]
                     ];
                     foreach ($DB->request($query) as $id => $row) {
+                        Toolbox::logInFile('taskndrop2', print_r($row, true));
                         $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
                     }
                 }
@@ -98,34 +95,35 @@ class PluginTaskdropCalendar extends CommonDBTM
                     if ($value['display'] == 1) {
                         $group = explode('_', $key);
                         $query = [
-                        'SELECT' => ['glpi_tickettasks.content AS task_content' , 'glpi_tickettasks.id AS task_id'],
-                        'FROM' => 'glpi_tickettasks',
-                        'INNER JOIN' => [
-                        'glpi_tickets' => [
-                           'FKEY' => [
-                              'glpi_tickettasks' => 'tickets_id', 'glpi_tickets' => 'id',
-                              ]
-                           ],
-                        ],
-                        'WHERE' => [
-                        'state' => 1,
-                        'begin' => null,
-                        'groups_id_tech' => $group[1],
-                        'glpi_tickets.status' => ['<', 5]
-                        ]
+                            'SELECT' => ['glpi_tickettasks.content AS task_content', 'glpi_tickettasks.id AS task_id'],
+                            'FROM' => 'glpi_tickettasks',
+                            'INNER JOIN' => [
+                                'glpi_tickets' => [
+                                    'FKEY' => [
+                                        'glpi_tickettasks' => 'tickets_id',
+                                        'glpi_tickets' => 'id',
+                                    ]
+                                ],
+                            ],
+                            'WHERE' => [
+                                'state' => 1,
+                                'begin' => null,
+                                'groups_id_tech' => $group[1],
+                                'glpi_tickets.status' => ['<', 5]
+                            ]
                         ];
                         foreach ($DB->request($query) as $id => $row) {
-                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-height:150px;max-width:400px;cursor:grab;padding:2px;margin:2px;background-color: " ;
-                            $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>" ;
+                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-height:150px;max-width:400px;cursor:grab;padding:2px;margin:2px;background-color: ";
+                            $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
                             $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
                         }
                         $query = [
-                        'FROM' => 'glpi_changetasks',
-                        'WHERE' => [
-                        'state' => 1,
-                        'begin' => null,
-                        'groups_id_tech' => $group[1],
-                        ]
+                            'FROM' => 'glpi_changetasks',
+                            'WHERE' => [
+                                'state' => 1,
+                                'begin' => null,
+                                'groups_id_tech' => $group[1],
+                            ]
                         ];
                         foreach ($DB->request($query) as $id => $row) {
                             $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
@@ -148,12 +146,12 @@ class PluginTaskdropCalendar extends CommonDBTM
                 if ($value['display'] == 1) {
                     $actor = explode('_', $key);
                     $query = [
-                    'FROM' => 'glpi_reminders',
-                    'WHERE' => [
-                     'state' => 1,
-                     'begin' => null,
-                     'users_id' => $actor[1],
-                    ]
+                        'FROM' => 'glpi_reminders',
+                        'WHERE' => [
+                            'state' => 1,
+                            'begin' => null,
+                            'users_id' => $actor[1],
+                        ]
                     ];
                     foreach ($DB->request($query) as $id => $row) {
                         $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['name'])) . "</div>";
@@ -177,7 +175,7 @@ class PluginTaskdropCalendar extends CommonDBTM
         $div .= self::addReminder();
         $div .= "</div>";
 
-        $ajax_url = Plugin::getWebDir('taskdrop') . "/ajax/planning.php";
+        $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/taskdrop/ajax/planning.php';
 
         $script = <<<JAVASCRIPT
 		$(document).ready(function() {

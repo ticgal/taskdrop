@@ -33,11 +33,11 @@
  @link      https://tic.gal & https://itsm-factory.com/
  @since     2018-2024
  ---------------------------------------------------------------------- */
-define('PLUGIN_TASKDROP_VERSION', '2.1.1');
+define('PLUGIN_TASKDROP_VERSION', '3.0.0');
 // Minimal GLPI version, inclusive
-define("PLUGIN_TASKDROP_MIN_GLPI", "10.0");
+define("PLUGIN_TASKDROP_MIN_GLPI", "11.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_TASKDROP_MAX_GLPI", "11.0");
+define("PLUGIN_TASKDROP_MAX_GLPI", "11.9");
 
 function plugin_version_taskdrop()
 {
