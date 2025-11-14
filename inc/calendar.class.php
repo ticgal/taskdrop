@@ -137,7 +137,7 @@ class PluginTaskdropCalendar extends CommonDBTM
 
     public static function addReminder()
     {
-        /** @var DB $DB */
+        /** @var \DBmysql $DB */
         global $DB;
 
         $div = "<h3>" . __('Planning reminder') . "</h3>";
