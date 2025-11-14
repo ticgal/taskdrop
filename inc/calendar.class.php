@@ -45,7 +45,7 @@ class PluginTaskdropCalendar extends CommonDBTM
 
     public static function addTask()
     {
-        /** @var DB $DB */
+        /** @var \DBmysql $DB */
         global $DB;
 
         $div = "<h3>" . __('Plan this task') . "</h3>";
@@ -155,7 +155,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                     ];
                     foreach ($DB->request($query) as $id => $row) {
                         $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder'>" . htmlspecialchars(Toolbox::stripTags($row['name'])) . "</div>";
-                    } 
+                    }
                 }
             }
         }

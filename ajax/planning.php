@@ -43,10 +43,8 @@ if (!isset($_REQUEST["action"])) {
 }
 
 /** @var array $CFG_GLPI */
-global $CFG_GLPI;
-
-/** @var DB $DB */
-global $DB;
+/** @var \DBmysql $DB */
+global $DB, $CFG_GLPI;
 
 if ($_REQUEST["action"] == "add_tickettask") {
     $query = [
