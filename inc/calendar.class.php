@@ -38,13 +38,14 @@ class PluginTaskdropCalendar extends CommonDBTM
 {
     public static $rightname = 'calendar';
 
-    static function getTypeName($nb = 0)
+    public static function getTypeName($nb = 0)
     {
         return __('TaskDrop', 'TaskDrop');
     }
 
-    static function addTask()
+    public static function addTask()
     {
+        /** @var DB $DB */
         global $DB;
 
         $div = "<h3>" . __('Plan this task') . "</h3>";
@@ -74,8 +75,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                         $rand = rand();
                         $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
                         $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
-                        $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
-                        //$div .= Html::showToolTip($row['task_content'], ['linkid' => 'task_'.$rand, 'display' => false]);
+                        $div .= htmlspecialchars(Toolbox::stripTags($row['task_content'])) . "</div>";
                     }
                     $query = [
                         'FROM' => 'glpi_changetasks',
@@ -87,7 +87,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                     ];
                     foreach ($DB->request($query) as $id => $row) {
                         Toolbox::logInFile('taskndrop2', print_r($row, true));
-                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
+                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . htmlspecialchars(Toolbox::stripTags($row['content'])) . "</div>";
                     }
                 }
             } else {
@@ -115,7 +115,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                         foreach ($DB->request($query) as $id => $row) {
                             $div .= "<div class='overflow-auto fc-event-external text-break' style='max-height:150px;max-width:400px;cursor:grab;padding:2px;margin:2px;background-color: ";
                             $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
-                            $div .= Toolbox::addslashes_deep(Toolbox::stripTags($row['task_content'])) . "</div>";
+                            $div .= htmlspecialchars(Toolbox::stripTags($row['task_content'])) . "</div>";
                         }
                         $query = [
                             'FROM' => 'glpi_changetasks',
@@ -126,7 +126,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                             ]
                         ];
                         foreach ($DB->request($query) as $id => $row) {
-                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['content'])) . "</div>";
+                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . htmlspecialchars(Toolbox::stripTags($row['content'])) . "</div>";
                         }
                     }
                 }
@@ -135,9 +135,9 @@ class PluginTaskdropCalendar extends CommonDBTM
         return $div;
     }
 
-
-    static function addReminder()
+    public static function addReminder()
     {
+        /** @var DB $DB */
         global $DB;
 
         $div = "<h3>" . __('Planning reminder') . "</h3>";
@@ -154,16 +154,17 @@ class PluginTaskdropCalendar extends CommonDBTM
                         ]
                     ];
                     foreach ($DB->request($query) as $id => $row) {
-                        $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder'>" . Toolbox::addslashes_deep(Toolbox::stripTags($row['name'])) . "</div>";
-                    }
+                        $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder'>" . htmlspecialchars(Toolbox::stripTags($row['name'])) . "</div>";
+                    } 
                 }
             }
         }
         return $div;
     }
 
-    static function listTask($params)
+    public static function listTask($params)
     {
+        /** @var array $CFG_GLPI */
         global $CFG_GLPI;
 
         $options = $params['options'];

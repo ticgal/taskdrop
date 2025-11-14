@@ -42,7 +42,11 @@ if (!isset($_REQUEST["action"])) {
     exit;
 }
 
-global $DB, $CFG_GLPI;
+/** @var array $CFG_GLPI */
+global $CFG_GLPI;
+
+/** @var DB $DB */
+global $DB;
 
 if ($_REQUEST["action"] == "add_tickettask") {
     $query = [
@@ -151,7 +155,6 @@ if ($_REQUEST["action"] == "add_tickettask") {
 
     echo json_encode($event);
 } elseif ($_REQUEST["action"] == "update_task") {
-
     $div  = PluginTaskdropCalendar::addTask();
     $div .= PluginTaskdropCalendar::addReminder();
     echo $div;

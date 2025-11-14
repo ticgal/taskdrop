@@ -67,6 +67,7 @@ function plugin_taskdrop_check_config($verbose = false)
 
 function plugin_init_taskdrop()
 {
+    /** @var array $PLUGIN_HOOKS */
     global $PLUGIN_HOOKS;
 
     $PLUGIN_HOOKS['csrf_compliant']['taskdrop'] = true;
