@@ -1,6 +1,10 @@
 # Task'n'drop
 The Task'n'drop plugin for GLPI
 
+## 3.0.0 - 2026-01-21
+### Feature
+- GLPI 11 support
+
 ## 2.1.1 - 2025-02-04
 ### Bugfixes
 - Fix sanitize errors
