@@ -3,7 +3,7 @@
 /*
  -------------------------------------------------------------------------
  Task&drop plugin for GLPI
- Copyright (C) 2024 by the TICgal Team.
+ Copyright (C) 2018-2026 by the TICGAL Team.
 
  https://github.com/ticgal/Task&drop
  -------------------------------------------------------------------------
@@ -26,25 +26,25 @@
  along with Task&drop. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  @package   Task&drop
- @author    the TICgal team & ITSM Factory
- @copyright Copyright (c) 2018-2024 TICgal team & 2024 ITSM Factory
+ @author    the TICGAL team & ITSM Factory
+ @copyright Copyright (c) 2018-2026 TICGAL team & 2024-2026 ITSM Factory
  @license   AGPL License 3.0 or (at your option) any later version
             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  @link      https://tic.gal & https://itsm-factory.com/
- @since     2018-2024
+ @since     2018
  ---------------------------------------------------------------------- */
-define('PLUGIN_TASKDROP_VERSION', '2.1.0');
+define('PLUGIN_TASKDROP_VERSION', '3.0.0');
 // Minimal GLPI version, inclusive
-define("PLUGIN_TASKDROP_MIN_GLPI", "10.0");
+define("PLUGIN_TASKDROP_MIN_GLPI", "11.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_TASKDROP_MAX_GLPI", "11.0");
+define("PLUGIN_TASKDROP_MAX_GLPI", "11.9");
 
 function plugin_version_taskdrop()
 {
     return [
         'name'       => 'TaskDrop',
         'version'        => PLUGIN_TASKDROP_VERSION,
-        'author'         => '<a href="https://tic.gal">TICgal</a> and <a href="https://itsm-factory.com">ITSM Factory</a>',
+        'author'         => '<a href="https://tic.gal">TICGAL</a> and <a href="https://itsm-factory.com">ITSM Factory</a>',
         'homepage'       => 'https://tic.gal/en/project/taskdrop-easy-ticket-task-reminders-planning-glpi/',
         'license'        => 'AGPLv3+',
         'minGlpiVersion' => PLUGIN_TASKDROP_MIN_GLPI,
@@ -52,8 +52,8 @@ function plugin_version_taskdrop()
             'glpi'   => [
                 'min' => PLUGIN_TASKDROP_MIN_GLPI,
                 'max' => PLUGIN_TASKDROP_MAX_GLPI,
-            ]
-        ]
+            ],
+        ],
     ];
 }
 
@@ -67,6 +67,7 @@ function plugin_taskdrop_check_config($verbose = false)
 
 function plugin_init_taskdrop()
 {
+    /** @var array $PLUGIN_HOOKS */
     global $PLUGIN_HOOKS;
 
     $PLUGIN_HOOKS['csrf_compliant']['taskdrop'] = true;
