@@ -56,12 +56,12 @@ if ($_REQUEST["action"] == "add_tickettask") {
                 'FKEY' => [
                     'glpi_tickets' => 'id',
                     'glpi_tickettasks' => 'tickets_id',
-                ]
-            ]
+                ],
+            ],
         ],
         'WHERE' => [
             'glpi_tickettasks.id' => $_REQUEST["id"],
-        ]
+        ],
     ];
 
     $req = $DB->request($query);
@@ -77,7 +77,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'url' => $CFG_GLPI['root_doc'] . '/front/ticket.form.php?id=' . $row['tickets_id'],
         'itemtype' => 'TicketTask',
         'items_id' => $_REQUEST["id"],
-        'state' => $row['state']
+        'state' => $row['state'],
     ];
 
     if ($row['actiontime'] > 0) {
@@ -93,7 +93,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
         'end' => $end,
         'actiontime' => $actiontime,
-        'users_id_tech' => $tickettask->fields['users_id_tech']
+        'users_id_tech' => $tickettask->fields['users_id_tech'],
     ]);
 
     echo json_encode($event);
@@ -109,12 +109,12 @@ if ($_REQUEST["action"] == "add_tickettask") {
                 'FKEY' => [
                     'glpi_changes' => 'id',
                     'glpi_changetasks' => 'changes_id',
-                ]
-            ]
+                ],
+            ],
         ],
         'WHERE' => [
             'glpi_changetasks.id' => $_REQUEST["id"],
-        ]
+        ],
     ];
 
     $req = $DB->request($query);
@@ -130,7 +130,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'url' => $CFG_GLPI['root_doc'] . '/front/change.form.php?id=' . $row['changes_id'],
         'itemtype' => 'ChangeTask',
         'items_id' => $_REQUEST["id"],
-        'state' => $row['state']
+        'state' => $row['state'],
     ];
 
     if ($row['actiontime'] > 0) {
@@ -146,7 +146,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
         'end' => $end,
         'actiontime' => $actiontime,
-        'users_id_tech' => $changetask->fields['users_id_tech']
+        'users_id_tech' => $changetask->fields['users_id_tech'],
     ]);
 
     echo json_encode($event);
@@ -155,18 +155,18 @@ if ($_REQUEST["action"] == "add_tickettask") {
     $div  = PluginTaskdropCalendar::addTask();
     $div .= PluginTaskdropCalendar::addReminder();
     echo $div;
-} else if ($_REQUEST["action"] == "add_reminder") {
+} elseif ($_REQUEST["action"] == "add_reminder") {
     $end = date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes"));
     $DB->update(
         'glpi_reminders',
         [
             'begin' => $_REQUEST['start'],
             'end' => $end,
-            'is_planned' => 1
+            'is_planned' => 1,
         ],
         [
-            'id' => $_REQUEST["id"]
-        ]
+            'id' => $_REQUEST["id"],
+        ],
     );
     $event = [
         'start' => $_REQUEST['start'],
@@ -174,7 +174,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'url' => $CFG_GLPI['root_doc'] . '/front/reminder.form.php?id=' . $_REQUEST["id"],
         'itemtype' => 'Reminder',
         'items_id' => $_REQUEST["id"],
-        'state' => 1
+        'state' => 1,
     ];
     echo json_encode($event);
 }

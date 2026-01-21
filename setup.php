@@ -52,8 +52,8 @@ function plugin_version_taskdrop()
             'glpi'   => [
                 'min' => PLUGIN_TASKDROP_MIN_GLPI,
                 'max' => PLUGIN_TASKDROP_MAX_GLPI,
-            ]
-        ]
+            ],
+        ],
     ];
 }
 
