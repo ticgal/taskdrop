@@ -3,7 +3,7 @@
 /*
  -------------------------------------------------------------------------
  Passwords plugin for GLPI
- Copyright (C) 2022 by the TICgal Team.
+ Copyright (C) 2022 by the TICGAL Team.
  https://www.tic.gal
  -------------------------------------------------------------------------
  LICENSE
@@ -20,8 +20,8 @@
  along with Passwords. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  @package   Passwords
- @author    the TICgal team
- @copyright Copyright (c) 2022 TICgal team
+ @author    the TICGAL team
+ @copyright Copyright (c) 2022 TICGAL team
  @license   AGPL License 3.0 or (at your option) any later version
                 http://www.gnu.org/licenses/agpl-3.0-standalone.html
  @link      https://www.tic.gal
