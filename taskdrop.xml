@@ -1,14 +1,15 @@
 <root>
-   <name>Task'n'Drop</name>
+   <name>Task&apos;n&apos;Drop</name>
    <key>taskdrop</key>
-   <state>stable</state> <!-- stable | unstable | beta | alpha -->
-   <logo>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/taskdrop.png</logo>
+   <state>stable</state> <logo>
+      https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/taskdrop.png
+   </logo>
    <description>
       <short>
-	<en>Enables drag'n'drop for not scheduled ticket tasks and reminders</en>
+         <en>Enables drag&apos;n&apos;drop for not scheduled ticket tasks and reminders</en>
       </short>
       <long>
-	<en>Drag'n'dropping ticket tasks are the fastest and most efficient way to schedule your recurrent tickets and Reminders. Combine it with GLPI Reminders extension for Chrome and Firefox to reduce your planning time.</en>
+         <en>Drag&apos;n&apos;dropping ticket tasks are the fastest and most efficient way to schedule your recurrent tickets and Reminders. Combine it with GLPI Reminders extension for Chrome and Firefox to reduce your planning time.</en>
       </long>
    </description>
    <homepage>https://tic.gal/glpi/glpi-plugins/taskndrop-easy-task-scheduling-for-glpi/</homepage>
@@ -19,6 +20,11 @@
       <author>TICgal</author>
    </authors>
    <versions>
+      <version>
+         <num>3.0.0</num>
+         <compatibility>~11.0.0</compatibility>
+         <download_url>https://github.com/ticgal/taskdrop/releases/download/3.0.0/glpi-taskdrop-3.0.0.tar.bz2</download_url>
+      </version>
       <version>
          <num>2.1.0</num>
          <compatibility>~10.0.0</compatibility>
@@ -58,7 +64,11 @@
       </en>
    </tags>
    <screenshots>
-      <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-1.png</screenshot>
-      <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-2.png</screenshot>
+      <screenshot>
+         https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-1.png
+      </screenshot>
+      <screenshot>
+         https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-2.png
+      </screenshot>
    </screenshots>
 </root>
