@@ -1,15 +1,14 @@
 <root>
    <name>Task&apos;n&apos;Drop</name>
    <key>taskdrop</key>
-   <state>stable</state> <logo>
-      https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/taskdrop.png
-   </logo>
+   <state>stable</state> 
+   <logo>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/taskdrop.png</logo>
    <description>
       <short>
-         <en>Enables drag&apos;n&apos;drop for not scheduled ticket & change tasks</en>
+         <en>Enables drag&apos;n&apos;drop for not scheduled ticket and change tasks</en>
       </short>
       <long>
-         <en>Drag&apos;n&apos;dropping ticket tasks are the fastest and most efficient way to schedule your unplanned ticket & changes tasks.</en>
+         <en>Drag&apos;n&apos;dropping ticket tasks are the fastest and most efficient way to schedule your unplanned ticket and changes tasks.</en>
       </long>
    </description>
    <homepage>https://tic.gal/glpi/glpi-plugins/taskndrop-easy-task-scheduling-for-glpi/</homepage>
@@ -75,5 +74,6 @@
       </screenshot>
    </screenshots>
 </root>
+
 
 
