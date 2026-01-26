@@ -63,17 +63,8 @@
       </en>
    </tags>
    <screenshots>
-      <screenshot>
-         https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-1.png
-      </screenshot>
-      <screenshot>
-         https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-2.png
-      </screenshot>
-      <screenshot>
-         https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-3.gif   
-      </screenshot>
+      <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-1.png</screenshot>
+      <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-2.png</screenshot>
+      <screenshot>https://raw.githubusercontent.com/ticgal/taskdrop/multimedia/task-and-drop-screenshot-3.gif</screenshot>
    </screenshots>
 </root>
-
-
-
