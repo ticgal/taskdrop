@@ -43,6 +43,25 @@ class PluginTaskdropCalendar extends CommonDBTM
         return __('TaskDrop', 'TaskDrop');
     }
 
+    private static function formatContent(string $content, int $length = 150): array
+    {
+        $stripped = Toolbox::stripTags($content ?? '');
+        $normalized = trim(preg_replace('/\s+/u', ' ', $stripped) ?? '');
+
+        $full = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
+
+        $label = $normalized;
+        if (mb_strlen($normalized) > $length) {
+            $label = mb_substr($normalized, 0, $length) . '…';
+        }
+        $label = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+
+        return [
+            'label' => $label,
+            'title' => $full,
+        ];
+    }
+
     public static function addTask()
     {
         /** @var \DBmysql $DB */
@@ -73,9 +92,10 @@ class PluginTaskdropCalendar extends CommonDBTM
                     ];
                     foreach ($DB->request($query, '', true) as $id => $row) {
                         $rand = rand();
+                        $content = self::formatContent($row['task_content']);
                         $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
-                        $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
-                        $div .= htmlspecialchars(Toolbox::stripTags($row['task_content'])) . "</div>";
+                        $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
+                        $div .= $content['label'] . "</div>";
                     }
                     $query = [
                         'FROM' => 'glpi_changetasks',
@@ -86,8 +106,8 @@ class PluginTaskdropCalendar extends CommonDBTM
                         ],
                     ];
                     foreach ($DB->request($query) as $id => $row) {
-                        Toolbox::logInFile('taskndrop2', print_r($row, true));
-                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . htmlspecialchars(Toolbox::stripTags($row['content'])) . "</div>";
+                        $content = self::formatContent($row['content']);
+                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
                     }
                 }
             } else {
@@ -113,9 +133,10 @@ class PluginTaskdropCalendar extends CommonDBTM
                             ],
                         ];
                         foreach ($DB->request($query) as $id => $row) {
+                            $content = self::formatContent($row['task_content']);
                             $div .= "<div class='overflow-auto fc-event-external text-break' style='max-height:150px;max-width:400px;cursor:grab;padding:2px;margin:2px;background-color: ";
-                            $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask'>";
-                            $div .= htmlspecialchars(Toolbox::stripTags($row['task_content'])) . "</div>";
+                            $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
+                            $div .= $content['label'] . "</div>";
                         }
                         $query = [
                             'FROM' => 'glpi_changetasks',
@@ -126,7 +147,8 @@ class PluginTaskdropCalendar extends CommonDBTM
                             ],
                         ];
                         foreach ($DB->request($query) as $id => $row) {
-                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask'>" . htmlspecialchars(Toolbox::stripTags($row['content'])) . "</div>";
+                            $content = self::formatContent($row['content']);
+                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
                         }
                     }
                 }
@@ -154,7 +176,8 @@ class PluginTaskdropCalendar extends CommonDBTM
                         ],
                     ];
                     foreach ($DB->request($query) as $id => $row) {
-                        $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder'>" . htmlspecialchars(Toolbox::stripTags($row['name'])) . "</div>";
+                        $content = self::formatContent($row['name']);
+                        $div .= "<div class='fc-event-external' style='cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_reminder' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
                     }
                 }
             }
@@ -177,11 +200,12 @@ class PluginTaskdropCalendar extends CommonDBTM
         $div .= "</div>";
 
         $ajax_url = $CFG_GLPI['root_doc'] . '/plugins/taskdrop/ajax/planning.php';
+        $div_json = str_replace('</', '<\/', json_encode($div));
 
         $script = <<<JAVASCRIPT
 		$(document).ready(function() {
 
-         $('#planning_filter_content').append("{$div}");
+         $('#planning_filter_content').append({$div_json});
 
 			var Draggable = FullCalendarInteraction.Draggable;
 			var containerEl = document.getElementById('external-events');
