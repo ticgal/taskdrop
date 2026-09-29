@@ -94,7 +94,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                         $rand = rand();
                         $content = self::formatContent($row['task_content']);
                         $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
-                        $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
+                        $div .= ($value['color'] ?? Planning::getPaletteColor('bg', 0)) . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
                         $div .= $content['label'] . "</div>";
                     }
                     $query = [
@@ -107,7 +107,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                     ];
                     foreach ($DB->request($query) as $id => $row) {
                         $content = self::formatContent($row['content']);
-                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
+                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . ($value['color'] ?? Planning::getPaletteColor('bg', 0)) . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
                     }
                 }
             } else {
@@ -135,7 +135,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                         foreach ($DB->request($query) as $id => $row) {
                             $content = self::formatContent($row['task_content']);
                             $div .= "<div class='overflow-auto fc-event-external text-break' style='max-height:150px;max-width:400px;cursor:grab;padding:2px;margin:2px;background-color: ";
-                            $div .= $value['color'] . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
+                            $div .= ($value['color'] ?? Planning::getPaletteColor('bg', 0)) . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
                             $div .= $content['label'] . "</div>";
                         }
                         $query = [
@@ -148,7 +148,7 @@ class PluginTaskdropCalendar extends CommonDBTM
                         ];
                         foreach ($DB->request($query) as $id => $row) {
                             $content = self::formatContent($row['content']);
-                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $value['color'] . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
+                            $div .= "<div class='overflow-auto fc-event-external text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . ($value['color'] ?? Planning::getPaletteColor('bg', 0)) . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
                         }
                     }
                 }
