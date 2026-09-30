@@ -45,8 +45,16 @@ class PluginTaskdropCalendar extends CommonDBTM
 
     private static function formatContent(string $content, int $length = 150): array
     {
+        $has_image = (bool) preg_match('/<img\b/i', $content ?? '');
         $stripped = Toolbox::stripTags($content ?? '');
         $normalized = trim(preg_replace('/\s+/u', ' ', $stripped) ?? '');
+
+        if ($normalized === '' && $has_image) {
+            // stripTags() drops <img> tags entirely, leaving no text to render
+            // for image-only content; fall back to a placeholder so the entry
+            // stays visible and draggable.
+            $normalized = '[' . __('Image') . ']';
+        }
 
         $full = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
 
