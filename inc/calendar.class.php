@@ -70,6 +70,54 @@ class PluginTaskdropCalendar extends CommonDBTM
         ];
     }
 
+    private static function renderTechTasks(int $users_id, string $color): string
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+
+        $div = '';
+        $query = [
+            'SELECT' => ['glpi_tickettasks.content AS task_content', 'glpi_tickettasks.id AS task_id'],
+            'FROM' => 'glpi_tickettasks',
+            'INNER JOIN' => [
+                'glpi_tickets' => [
+                    'FKEY' => [
+                        'glpi_tickettasks' => 'tickets_id',
+                        'glpi_tickets' => 'id',
+                    ],
+                ],
+            ],
+            'WHERE' => [
+                'state' => 1,
+                'begin' => null,
+                'users_id_tech' => $users_id,
+                'glpi_tickets.status' => ['<', 5],
+            ],
+        ];
+        foreach ($DB->request($query, '', true) as $id => $row) {
+            $rand = rand();
+            $content = self::formatContent($row['task_content']);
+            $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
+            $div .= $color . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
+            $div .= $content['label'] . "</div>";
+        }
+
+        $query = [
+            'FROM' => 'glpi_changetasks',
+            'WHERE' => [
+                'state' => 1,
+                'begin' => null,
+                'users_id_tech' => $users_id,
+            ],
+        ];
+        foreach ($DB->request($query) as $id => $row) {
+            $content = self::formatContent($row['content']);
+            $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . $color . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
+        }
+
+        return $div;
+    }
+
     public static function addTask()
     {
         /** @var \DBmysql $DB */
@@ -80,47 +128,19 @@ class PluginTaskdropCalendar extends CommonDBTM
             if (preg_match('/^user_/', $key)) {
                 if ($value['display'] == 1) {
                     $actor = explode('_', $key);
-                    $query = [
-                        'SELECT' => ['glpi_tickettasks.content AS task_content', 'glpi_tickettasks.id AS task_id'],
-                        'FROM' => 'glpi_tickettasks',
-                        'INNER JOIN' => [
-                            'glpi_tickets' => [
-                                'FKEY' => [
-                                    'glpi_tickettasks' => 'tickets_id',
-                                    'glpi_tickets' => 'id',
-                                ],
-                            ],
-                        ],
-                        'WHERE' => [
-                            'state' => 1,
-                            'begin' => null,
-                            'users_id_tech' => $actor[1],
-                            'glpi_tickets.status' => ['<', 5],
-                        ],
-                    ];
-                    foreach ($DB->request($query, '', true) as $id => $row) {
-                        $rand = rand();
-                        $content = self::formatContent($row['task_content']);
-                        $div .= "<div id ='task_" . $rand . "' class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: ";
-                        $div .= ($value['color'] ?? Planning::getPaletteColor('bg', 0)) . ";' tid=" . $row['task_id'] . " action='add_tickettask' title='" . $content['title'] . "'>";
-                        $div .= $content['label'] . "</div>";
-                    }
-                    $query = [
-                        'FROM' => 'glpi_changetasks',
-                        'WHERE' => [
-                            'state' => 1,
-                            'begin' => null,
-                            'users_id_tech' => $actor[1],
-                        ],
-                    ];
-                    foreach ($DB->request($query) as $id => $row) {
-                        $content = self::formatContent($row['content']);
-                        $div .= "<div class='overflow-auto fc-event-external event_type text-break' style='max-width:400px;max-height:150px;cursor:grab;padding:2px;margin:2px;background-color: " . ($value['color'] ?? Planning::getPaletteColor('bg', 0)) . ";' tid=" . $row['id'] . " action='add_changetask' title='" . $content['title'] . "'>" . $content['label'] . "</div>";
-                    }
+                    $div .= self::renderTechTasks($actor[1], $value['color'] ?? Planning::getPaletteColor('bg', 0));
                 }
             } else {
                 if (preg_match('/^group_/', $key)) {
-                    if ($value['display'] == 1) {
+                    if ($value['display'] == 1 && ($value['type'] ?? null) === 'group_users') {
+                        foreach ($value['users'] ?? [] as $user_key => $user_value) {
+                            if (($user_value['display'] ?? 0) != 1) {
+                                continue;
+                            }
+                            $user_actor = explode('_', $user_key);
+                            $div .= self::renderTechTasks($user_actor[1], $user_value['color'] ?? Planning::getPaletteColor('bg', 0));
+                        }
+                    } elseif ($value['display'] == 1) {
                         $group = explode('_', $key);
                         $query = [
                             'SELECT' => ['glpi_tickettasks.content AS task_content', 'glpi_tickettasks.id AS task_id'],

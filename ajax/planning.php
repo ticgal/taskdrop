@@ -47,6 +47,17 @@ if (!isset($_REQUEST["action"])) {
 global $DB, $CFG_GLPI;
 
 if ($_REQUEST["action"] == "add_tickettask") {
+    $id = (int) $_REQUEST["id"];
+    $tickettask = new TicketTask();
+    if (
+        !$tickettask->getFromDB($id)
+        || !TicketTask::canUpdate()
+        || !$tickettask->canUpdateItem()
+    ) {
+        http_response_code(403);
+        exit;
+    }
+
     $query = [
         'SELECT' => [
             'glpi_tickettasks.*',
@@ -62,7 +73,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
             ],
         ],
         'WHERE' => [
-            'glpi_tickettasks.id' => $_REQUEST["id"],
+            'glpi_tickettasks.id' => $id,
         ],
     ];
 
@@ -78,7 +89,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'end' => $end,
         'url' => $CFG_GLPI['root_doc'] . '/front/ticket.form.php?id=' . $row['tickets_id'],
         'itemtype' => 'TicketTask',
-        'items_id' => $_REQUEST["id"],
+        'items_id' => $id,
         'state' => $row['state'],
     ];
 
@@ -88,10 +99,8 @@ if ($_REQUEST["action"] == "add_tickettask") {
         $actiontime = 1800;
     }
 
-    $tickettask = new TicketTask();
-    $tickettask->getFromDB($_REQUEST["id"]);
     $tickettask->update([
-        'id' => $_REQUEST["id"],
+        'id' => $id,
         'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
         'end' => $end,
         'actiontime' => $actiontime,
@@ -100,6 +109,17 @@ if ($_REQUEST["action"] == "add_tickettask") {
 
     echo json_encode($event);
 } elseif ($_REQUEST["action"] == "add_changetask") {
+    $id = (int) $_REQUEST["id"];
+    $changetask = new ChangeTask();
+    if (
+        !$changetask->getFromDB($id)
+        || !ChangeTask::canUpdate()
+        || !$changetask->canUpdateItem()
+    ) {
+        http_response_code(403);
+        exit;
+    }
+
     $query = [
         'SELECT' => [
             'glpi_changetasks.*',
@@ -115,7 +135,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
             ],
         ],
         'WHERE' => [
-            'glpi_changetasks.id' => $_REQUEST["id"],
+            'glpi_changetasks.id' => $id,
         ],
     ];
 
@@ -131,7 +151,7 @@ if ($_REQUEST["action"] == "add_tickettask") {
         'end' => $end,
         'url' => $CFG_GLPI['root_doc'] . '/front/change.form.php?id=' . $row['changes_id'],
         'itemtype' => 'ChangeTask',
-        'items_id' => $_REQUEST["id"],
+        'items_id' => $id,
         'state' => $row['state'],
     ];
 
@@ -141,10 +161,8 @@ if ($_REQUEST["action"] == "add_tickettask") {
         $actiontime = 1800;
     }
 
-    $changetask = new ChangeTask();
-    $changetask->getFromDB($_REQUEST["id"]);
     $changetask->update([
-        'id' => $_REQUEST["id"],
+        'id' => $id,
         'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
         'end' => $end,
         'actiontime' => $actiontime,
@@ -157,24 +175,29 @@ if ($_REQUEST["action"] == "add_tickettask") {
     $div .= PluginTaskdropCalendar::addReminder();
     echo $div;
 } elseif ($_REQUEST["action"] == "add_reminder") {
+    $id = (int) $_REQUEST["id"];
+    $reminder = new Reminder();
+    if (
+        !$reminder->getFromDB($id)
+        || !$reminder->canUpdateItem()
+    ) {
+        http_response_code(403);
+        exit;
+    }
+
     $end = date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes"));
-    $DB->update(
-        'glpi_reminders',
-        [
-            'begin' => $_REQUEST['start'],
-            'end' => $end,
-            'is_planned' => 1,
-        ],
-        [
-            'id' => $_REQUEST["id"],
-        ],
-    );
+    $reminder->update([
+        'id' => $id,
+        'begin' => $_REQUEST['start'],
+        'end' => $end,
+        'is_planned' => 1,
+    ]);
     $event = [
         'start' => $_REQUEST['start'],
         'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/reminder.form.php?id=' . $_REQUEST["id"],
+        'url' => $CFG_GLPI['root_doc'] . '/front/reminder.form.php?id=' . $id,
         'itemtype' => 'Reminder',
-        'items_id' => $_REQUEST["id"],
+        'items_id' => $id,
         'state' => 1,
     ];
     echo json_encode($event);
