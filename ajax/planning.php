@@ -34,148 +34,36 @@
  @since     2018
  ---------------------------------------------------------------------- */
 
-include("../../../inc/includes.php");
+use Glpi\Exception\Http\AccessDeniedHttpException;
+use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Taskdrop\Calendar;
 
-header('Content-Type: application/json');
+Session::checkLoginUser();
 
-if (!isset($_REQUEST["action"])) {
-    exit;
+if (!Planning::canView()) {
+    throw new AccessDeniedHttpException();
 }
 
-/** @var array $CFG_GLPI */
-/** @var \DBmysql $DB */
-global $DB, $CFG_GLPI;
+switch ($_REQUEST['action'] ?? '') {
+    case 'list':
+        header('Content-Type: text/html; charset=UTF-8');
+        echo Calendar::renderList();
+        break;
 
-if ($_REQUEST["action"] == "add_tickettask") {
-    $query = [
-        'SELECT' => [
-            'glpi_tickettasks.*',
-            'glpi_tickets.name',
-        ],
-        'FROM' => 'glpi_tickettasks',
-        'LEFT JOIN' => [
-            'glpi_tickets' => [
-                'FKEY' => [
-                    'glpi_tickets' => 'id',
-                    'glpi_tickettasks' => 'tickets_id',
-                ],
-            ],
-        ],
-        'WHERE' => [
-            'glpi_tickettasks.id' => $_REQUEST["id"],
-        ],
-    ];
+    case 'plan':
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            throw new BadRequestHttpException();
+        }
+        $itemtype = $_POST['itemtype'] ?? null;
+        $items_id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $start    = $_POST['start'] ?? null;
+        if (!is_string($itemtype) || $items_id === false || !is_string($start)) {
+            throw new BadRequestHttpException();
+        }
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['success' => Calendar::plan($itemtype, $items_id, $start)]);
+        break;
 
-    $req = $DB->request($query);
-    $row = $req->current();
-
-    $end = ($row['actiontime'] > 0 ? date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +" . $row['actiontime'] . " seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes")));
-
-    $event = [
-        'title' => $row['name'],
-        'content' => $row['content'],
-        'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/ticket.form.php?id=' . $row['tickets_id'],
-        'itemtype' => 'TicketTask',
-        'items_id' => $_REQUEST["id"],
-        'state' => $row['state'],
-    ];
-
-    if ($row['actiontime'] > 0) {
-        $actiontime = $row['actiontime'];
-    } else {
-        $actiontime = 1800;
-    }
-
-    $tickettask = new TicketTask();
-    $tickettask->getFromDB($_REQUEST["id"]);
-    $tickettask->update([
-        'id' => $_REQUEST["id"],
-        'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'actiontime' => $actiontime,
-        'users_id_tech' => $tickettask->fields['users_id_tech'],
-    ]);
-
-    echo json_encode($event);
-} elseif ($_REQUEST["action"] == "add_changetask") {
-    $query = [
-        'SELECT' => [
-            'glpi_changetasks.*',
-            'glpi_changes.name',
-        ],
-        'FROM' => 'glpi_changetasks',
-        'LEFT JOIN' => [
-            'glpi_changes' => [
-                'FKEY' => [
-                    'glpi_changes' => 'id',
-                    'glpi_changetasks' => 'changes_id',
-                ],
-            ],
-        ],
-        'WHERE' => [
-            'glpi_changetasks.id' => $_REQUEST["id"],
-        ],
-    ];
-
-    $req = $DB->request($query);
-    $row = $req->current();
-
-    $end = ($row['actiontime'] > 0 ? date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +" . $row['actiontime'] . " seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes")));
-
-    $event = [
-        'title' => $row['name'],
-        'content' => $row['content'],
-        'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/change.form.php?id=' . $row['changes_id'],
-        'itemtype' => 'ChangeTask',
-        'items_id' => $_REQUEST["id"],
-        'state' => $row['state'],
-    ];
-
-    if ($row['actiontime'] > 0) {
-        $actiontime = $row['actiontime'];
-    } else {
-        $actiontime = 1800;
-    }
-
-    $changetask = new ChangeTask();
-    $changetask->getFromDB($_REQUEST["id"]);
-    $changetask->update([
-        'id' => $_REQUEST["id"],
-        'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'actiontime' => $actiontime,
-        'users_id_tech' => $changetask->fields['users_id_tech'],
-    ]);
-
-    echo json_encode($event);
-} elseif ($_REQUEST["action"] == "update_task") {
-    $div  = PluginTaskdropCalendar::addTask();
-    $div .= PluginTaskdropCalendar::addReminder();
-    echo $div;
-} elseif ($_REQUEST["action"] == "add_reminder") {
-    $end = date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes"));
-    $DB->update(
-        'glpi_reminders',
-        [
-            'begin' => $_REQUEST['start'],
-            'end' => $end,
-            'is_planned' => 1,
-        ],
-        [
-            'id' => $_REQUEST["id"],
-        ],
-    );
-    $event = [
-        'start' => $_REQUEST['start'],
-        'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/reminder.form.php?id=' . $_REQUEST["id"],
-        'itemtype' => 'Reminder',
-        'items_id' => $_REQUEST["id"],
-        'state' => 1,
-    ];
-    echo json_encode($event);
+    default:
+        throw new BadRequestHttpException();
 }

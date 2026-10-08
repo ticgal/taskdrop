@@ -33,21 +33,23 @@
  @link      https://tic.gal & https://itsm-factory.com/
  @since     2018
  ---------------------------------------------------------------------- */
-define('PLUGIN_TASKDROP_VERSION', '3.0.1');
-// Minimal GLPI version, inclusive
-define("PLUGIN_TASKDROP_MIN_GLPI", "11.0");
-// Maximum GLPI version, exclusive
-define("PLUGIN_TASKDROP_MAX_GLPI", "11.9");
+use Glpi\Plugin\Hooks;
+use GlpiPlugin\Taskdrop\Calendar;
 
-function plugin_version_taskdrop()
+define('PLUGIN_TASKDROP_VERSION', '4.0.0-beta.1');
+// Minimal GLPI version, inclusive
+define("PLUGIN_TASKDROP_MIN_GLPI", "12.0.0");
+// Maximum GLPI version, exclusive
+define("PLUGIN_TASKDROP_MAX_GLPI", "12.1.0");
+
+function plugin_version_taskdrop(): array
 {
     return [
-        'name'       => 'TaskDrop',
+        'name'           => 'TaskDrop',
         'version'        => PLUGIN_TASKDROP_VERSION,
         'author'         => '<a href="https://tic.gal">TICGAL</a> and <a href="https://itsm-factory.com">ITSM Factory</a>',
         'homepage'       => 'https://tic.gal/en/project/taskdrop-easy-ticket-task-reminders-planning-glpi/',
         'license'        => 'AGPLv3+',
-        'minGlpiVersion' => PLUGIN_TASKDROP_MIN_GLPI,
         'requirements'   => [
             'glpi'   => [
                 'min' => PLUGIN_TASKDROP_MIN_GLPI,
@@ -60,16 +62,21 @@ function plugin_version_taskdrop()
 /**
  * Check plugin's config before activation
  */
-function plugin_taskdrop_check_config($verbose = false)
+function plugin_taskdrop_check_config($verbose = false): bool
 {
     return true;
 }
 
-function plugin_init_taskdrop()
+function plugin_init_taskdrop(): void
 {
     /** @var array $PLUGIN_HOOKS */
     global $PLUGIN_HOOKS;
 
-    $PLUGIN_HOOKS['csrf_compliant']['taskdrop'] = true;
-    $PLUGIN_HOOKS['post_show_tab']['taskdrop'] = ['PluginTaskdropCalendar','listTask'];
+    if (!Plugin::isPluginActive('taskdrop')) {
+        return;
+    }
+
+    $PLUGIN_HOOKS[Hooks::POST_SHOW_TAB]['taskdrop'] = [Calendar::class, 'showForPlanning'];
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['taskdrop'] = ['taskdrop.js'];
+    $PLUGIN_HOOKS[Hooks::ADD_CSS]['taskdrop'] = ['taskdrop.css'];
 }

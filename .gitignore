@@ -1,3 +1,4 @@
 /public/vendor
 /vendor
 composer.lock
+/docs/findings

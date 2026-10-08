@@ -1,0 +1,41 @@
+{#
+ # -------------------------------------------------------------------------
+ # Task&drop plugin for GLPI
+ # Copyright (C) 2018-2026 by the TICGAL Team.
+ #
+ # https://github.com/ticgal/Task&drop
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of the Task&drop plugin.
+ #
+ # Task&drop plugin is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # Task&drop plugin is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with Task&drop. If not, see <http://www.gnu.org/licenses/>.
+ # --------------------------------------------------------------------------
+ # @package   Task&drop
+ # @author    the TICGAL team & ITSM Factory
+ # @copyright Copyright (c) 2018-2026 TICGAL team & 2024-2026 ITSM Factory
+ # @license   AGPL License 3.0 or (at your option) any later version
+ # http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ # @link      https://tic.gal & https://itsm-factory.com/
+ # @since     2018
+ # ----------------------------------------------------------------------
+ #}
+
+<div id="taskdrop-events" class="taskdrop-events d-none" data-ajax-url="{{ ajax_url }}">
+    {{ list|raw }}
+</div>
+<script>
+    $(() => GlpiPluginTaskdrop.init(document.getElementById('taskdrop-events')));
+</script>
