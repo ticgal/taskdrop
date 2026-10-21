@@ -3,7 +3,7 @@
 The Task'n'drop plugin for GLPI
 
 ## [Unreleased]
-_Pending release; the plugin version is still 3.0.2._
+_Working version: 3.0.3-beta.1._
 
 ### Bugs
 - Users could read and reschedule tasks and reminders they had no access to, including from the simplified interface.
