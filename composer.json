@@ -10,6 +10,7 @@
         "squizlabs/php_codesniffer": "^3.7"
     },
     "config": {
+        "autoloader-suffix": "PluginTaskdrop",
         "optimize-autoloader": true,
         "platform": {
             "php": "8.1.0"

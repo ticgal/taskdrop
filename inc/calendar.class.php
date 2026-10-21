@@ -45,8 +45,8 @@ class PluginTaskdropCalendar extends CommonDBTM
 
     private static function formatContent(string $content, int $length = 150): array
     {
-        $has_image = (bool) preg_match('/<img\b/i', $content ?? '');
-        $stripped = Toolbox::stripTags($content ?? '');
+        $has_image = (bool) preg_match('/<img\b/i', $content);
+        $stripped = Toolbox::stripTags($content);
         $normalized = trim(preg_replace('/\s+/u', ' ', $stripped) ?? '');
 
         if ($normalized === '' && $has_image) {
