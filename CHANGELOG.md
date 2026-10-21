@@ -1,6 +1,10 @@
 # Task'n'drop
 The Task'n'drop plugin for GLPI
 
+## 3.0.2 - 2026-09-29
+### Bugfix
+- Fix "Undefined array key color" warning when the planning filter "all users of a group" was active
+
 ## 3.0.1 - 2026-09-08
 ### Bugfix
 - Fix tasks with line breaks

@@ -36,7 +36,6 @@
 
 function plugin_taskdrop_install()
 {
-
     $migration = new Migration(PLUGIN_TASKDROP_VERSION);
 
     // Parse inc directory
@@ -56,7 +55,6 @@ function plugin_taskdrop_install()
 
 function plugin_taskdrop_uninstall()
 {
-
     $migration = new Migration(PLUGIN_TASKDROP_VERSION);
 
     // Parse inc directory
