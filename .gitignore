@@ -1,4 +1,7 @@
 /public/vendor
 /vendor
 composer.lock
-/docs/plans
+docs/*
+!docs/manual/
+docs/manual/*
+!docs/manual/.bookstack-map.json
