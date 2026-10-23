@@ -38,167 +38,77 @@ include("../../../inc/includes.php");
 
 header('Content-Type: application/json');
 
-if (!isset($_REQUEST["action"])) {
+// The planning panel is a central-interface feature
+Session::checkCentralAccess();
+
+// Write actions must only run on POST so the kernel CSRF check applies
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
     exit;
 }
 
-/** @var array $CFG_GLPI */
-/** @var \DBmysql $DB */
-global $DB, $CFG_GLPI;
+if (!isset($_POST["action"])) {
+    exit;
+}
 
-if ($_REQUEST["action"] == "add_tickettask") {
-    $id = (int) $_REQUEST["id"];
-    $tickettask = new TicketTask();
-    if (
-        !$tickettask->getFromDB($id)
-        || !TicketTask::canUpdate()
-        || !$tickettask->canUpdateItem()
-    ) {
-        http_response_code(403);
-        exit;
-    }
+$action = $_POST["action"];
 
-    $query = [
-        'SELECT' => [
-            'glpi_tickettasks.*',
-            'glpi_tickets.name',
-        ],
-        'FROM' => 'glpi_tickettasks',
-        'LEFT JOIN' => [
-            'glpi_tickets' => [
-                'FKEY' => [
-                    'glpi_tickets' => 'id',
-                    'glpi_tickettasks' => 'tickets_id',
-                ],
-            ],
-        ],
-        'WHERE' => [
-            'glpi_tickettasks.id' => $id,
-        ],
-    ];
-
-    $req = $DB->request($query);
-    $row = $req->current();
-
-    $end = ($row['actiontime'] > 0 ? date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +" . $row['actiontime'] . " seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes")));
-
-    $event = [
-        'title' => $row['name'],
-        'content' => $row['content'],
-        'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/ticket.form.php?id=' . $row['tickets_id'],
-        'itemtype' => 'TicketTask',
-        'items_id' => $id,
-        'state' => $row['state'],
-    ];
-
-    if ($row['actiontime'] > 0) {
-        $actiontime = $row['actiontime'];
-    } else {
-        $actiontime = 1800;
-    }
-
-    $tickettask->update([
-        'id' => $id,
-        'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'actiontime' => $actiontime,
-        'users_id_tech' => $tickettask->fields['users_id_tech'],
-    ]);
-
-    echo json_encode($event);
-} elseif ($_REQUEST["action"] == "add_changetask") {
-    $id = (int) $_REQUEST["id"];
-    $changetask = new ChangeTask();
-    if (
-        !$changetask->getFromDB($id)
-        || !ChangeTask::canUpdate()
-        || !$changetask->canUpdateItem()
-    ) {
-        http_response_code(403);
-        exit;
-    }
-
-    $query = [
-        'SELECT' => [
-            'glpi_changetasks.*',
-            'glpi_changes.name',
-        ],
-        'FROM' => 'glpi_changetasks',
-        'LEFT JOIN' => [
-            'glpi_changes' => [
-                'FKEY' => [
-                    'glpi_changes' => 'id',
-                    'glpi_changetasks' => 'changes_id',
-                ],
-            ],
-        ],
-        'WHERE' => [
-            'glpi_changetasks.id' => $id,
-        ],
-    ];
-
-    $req = $DB->request($query);
-    $row = $req->current();
-
-    $end = ($row['actiontime'] > 0 ? date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +" . $row['actiontime'] . " seconds")) : date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes")));
-
-    $event = [
-        'title' => $row['name'],
-        'content' => $row['content'],
-        'start' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/change.form.php?id=' . $row['changes_id'],
-        'itemtype' => 'ChangeTask',
-        'items_id' => $id,
-        'state' => $row['state'],
-    ];
-
-    if ($row['actiontime'] > 0) {
-        $actiontime = $row['actiontime'];
-    } else {
-        $actiontime = 1800;
-    }
-
-    $changetask->update([
-        'id' => $id,
-        'begin' => date("Y-m-d H:i", strtotime($_REQUEST['start'])),
-        'end' => $end,
-        'actiontime' => $actiontime,
-        'users_id_tech' => $changetask->fields['users_id_tech'],
-    ]);
-
-    echo json_encode($event);
-} elseif ($_REQUEST["action"] == "update_task") {
+if ($action == "update_task") {
     $div  = PluginTaskdropCalendar::addTask();
     $div .= PluginTaskdropCalendar::addReminder();
     echo $div;
-} elseif ($_REQUEST["action"] == "add_reminder") {
-    $id = (int) $_REQUEST["id"];
-    $reminder = new Reminder();
-    if (
-        !$reminder->getFromDB($id)
-        || !$reminder->canUpdateItem()
-    ) {
-        http_response_code(403);
-        exit;
-    }
-
-    $end = date("Y-m-d H:i", strtotime($_REQUEST['start'] . " +30 minutes"));
-    $reminder->update([
-        'id' => $id,
-        'begin' => $_REQUEST['start'],
-        'end' => $end,
-        'is_planned' => 1,
-    ]);
-    $event = [
-        'start' => $_REQUEST['start'],
-        'end' => $end,
-        'url' => $CFG_GLPI['root_doc'] . '/front/reminder.form.php?id=' . $id,
-        'itemtype' => 'Reminder',
-        'items_id' => $id,
-        'state' => 1,
-    ];
-    echo json_encode($event);
+    exit;
 }
+
+$itemtypes = [
+    'add_tickettask' => TicketTask::class,
+    'add_changetask' => ChangeTask::class,
+    'add_reminder'   => Reminder::class,
+];
+if (!isset($itemtypes[$action])) {
+    http_response_code(400);
+    exit;
+}
+
+$id    = is_numeric($_POST["id"] ?? null) ? (int) $_POST["id"] : 0;
+$start = is_string($_POST["start"] ?? null) ? strtotime($_POST["start"]) : false;
+if ($id <= 0 || $start === false) {
+    http_response_code(400);
+    exit;
+}
+
+$item = new $itemtypes[$action]();
+if (!$item->can($id, READ) || !$item->can($id, UPDATE)) {
+    http_response_code(403);
+    exit;
+}
+
+if ($item instanceof CommonITILTask) {
+    $actiontime = $item->fields['actiontime'] > 0 ? (int) $item->fields['actiontime'] : 1800;
+    $input = [
+        'id'            => $id,
+        'begin'         => date("Y-m-d H:i:s", $start),
+        'end'           => date("Y-m-d H:i:s", $start + $actiontime),
+        'actiontime'    => $actiontime,
+        'users_id_tech' => $item->fields['users_id_tech'],
+    ];
+} else {
+    $input = [
+        'id'         => $id,
+        'begin'      => date("Y-m-d H:i:s", $start),
+        'end'        => date("Y-m-d H:i:s", $start + 1800),
+        'is_planned' => 1,
+    ];
+}
+
+if (!$item->update($input)) {
+    http_response_code(500);
+    exit;
+}
+
+echo json_encode([
+    'itemtype' => $item::class,
+    'items_id' => $id,
+    'start'    => $input['begin'],
+    'end'      => $input['end'],
+]);
