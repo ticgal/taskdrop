@@ -12,7 +12,7 @@
     },
     "config": {
         "optimize-autoloader": true,
-        "autoloader-suffix": "Taskdrop",
+        "autoloader-suffix": "PluginTaskdrop",
         "platform": {
             "php": "8.3.0"
         },

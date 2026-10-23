@@ -46,6 +46,7 @@ use Glpi\Exception\Http\BadRequestHttpException;
 use Glpi\RichText\RichText;
 use Planning;
 use Reminder;
+use Session;
 use Ticket;
 use TicketTask;
 
@@ -229,9 +230,23 @@ final class Calendar
                 $task_table . '.begin'        => null,
                 $parent_table . '.is_deleted' => 0,
                 ['OR' => $actor_criteria],
-            ] + getEntitiesRestrictCriteria($parent_table);
-            if ($parent_itemtype === Ticket::class) {
-                $where[$parent_table . '.status'] = Ticket::getNotSolvedStatusArray();
+                [
+                    'NOT' => [
+                        $parent_table . '.status' => array_merge(
+                            $parent_itemtype::getSolvedStatusArray(),
+                            $parent_itemtype::getClosedStatusArray(),
+                        ),
+                    ],
+                ],
+            ];
+            // Changes can be recursive: a recursive change of a parent entity is visible, like in GLPI
+            $entities = getEntitiesRestrictCriteria($parent_table, '', '', (new $parent_itemtype())->maybeRecursive());
+            if ($entities !== []) {
+                $where[] = $entities;
+            }
+            $privacy = self::getTaskPrivacyCriteria($task_table);
+            if ($privacy !== []) {
+                $where[] = $privacy;
             }
 
             $iterator = $DB->request([
@@ -285,16 +300,27 @@ final class Calendar
             return [];
         }
 
-        $iterator = $DB->request([
-            'SELECT' => ['id', 'name', 'users_id'],
-            'FROM'   => Reminder::getTable(),
-            'WHERE'  => [
-                'state'    => Planning::TODO,
-                'begin'    => null,
-                'users_id' => array_keys($users),
+        $table = Reminder::getTable();
+        $criteria = [
+            'SELECT'   => [$table . '.id', $table . '.name', $table . '.users_id'],
+            'DISTINCT' => true,
+            'FROM'     => $table,
+            'WHERE'    => [
+                $table . '.state'    => Planning::TODO,
+                $table . '.begin'    => null,
+                $table . '.users_id' => array_keys($users),
             ],
-            'ORDER'  => ['id'],
-        ]);
+            'ORDER'    => [$table . '.id'],
+        ];
+        // Same visibility as the GLPI reminders list: own, or shared with the user
+        $visibility = Reminder::getVisibilityCriteria();
+        if (isset($visibility['LEFT JOIN'])) {
+            $criteria['LEFT JOIN'] = $visibility['LEFT JOIN'];
+        }
+        if (!empty($visibility['WHERE'])) {
+            $criteria['WHERE'][] = $visibility['WHERE'];
+        }
+        $iterator = $DB->request($criteria);
 
         $reminders = [];
         $reminder  = new Reminder();
@@ -306,6 +332,30 @@ final class Calendar
         }
 
         return $reminders;
+    }
+
+    /**
+     * Private tasks the user can see without the right to see all private tasks,
+     * like CommonITILTask::canViewItem(): created by, assigned to the user or to one of their groups
+     *
+     * @return array<mixed> empty when the user can see all private tasks
+     */
+    private static function getTaskPrivacyCriteria(string $task_table): array
+    {
+        if (Session::haveRight(CommonITILTask::$rightname, CommonITILTask::SEEPRIVATE)) {
+            return [];
+        }
+
+        $visible = [
+            $task_table . '.is_private'    => 0,
+            $task_table . '.users_id'      => Session::getLoginUserID(),
+            $task_table . '.users_id_tech' => Session::getLoginUserID(),
+        ];
+        if (!empty($_SESSION['glpigroups'])) {
+            $visible[$task_table . '.groups_id_tech'] = $_SESSION['glpigroups'];
+        }
+
+        return ['OR' => $visible];
     }
 
     /**
