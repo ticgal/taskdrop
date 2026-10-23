@@ -3,7 +3,9 @@
 The Task'n'drop plugin for GLPI
 
 ## [Unreleased]
-_Working version: 3.0.3-beta.1._
+
+## [3.0.3] - 2026-10-23
+_3.0.1 and 3.0.2 were never published: their fixes ship in this release._
 
 ### Bugs
 - Users could read and reschedule tasks and reminders they had no access to, including from the simplified interface.
@@ -14,13 +16,7 @@ _Working version: 3.0.3-beta.1._
 - The panel now lists only the tasks and reminders the current user is allowed to reschedule.
 - Tasks of solved or closed changes no longer appear in the panel.
 - Dropping a reminder on the calendar no longer fails with an error.
-
-## [3.0.2] - 2026-09-29
-### Bugs
 - Fix "Undefined array key color" warning when the planning filter "all users of a group" was active
-
-## [3.0.1] - 2026-09-08
-### Bugs
 - Fix tasks with line breaks
 
 ## [3.0.0] - 2026-01-21
