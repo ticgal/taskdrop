@@ -38,7 +38,8 @@ use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
 use GlpiPlugin\Taskdrop\Calendar;
 
-Session::checkLoginUser();
+// The planning is a feature of the standard interface
+Session::checkCentralAccess();
 
 if (!Planning::canView()) {
     throw new AccessDeniedHttpException();

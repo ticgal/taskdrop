@@ -389,7 +389,13 @@ final class Calendar
             $content,
         ) ?? $content;
 
-        return RichText::getTextFromHtml($content, false, true);
+        $text = RichText::getTextFromHtml($content, false, true);
+        if (trim($text) === '' && preg_match('/<img\b/i', $content)) {
+            // Image-only content: keep a visible, draggable label
+            $text = '[' . __('Image') . ']';
+        }
+
+        return $text;
     }
 
     private static function isDisplayed(mixed $planning): bool
