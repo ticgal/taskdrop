@@ -1,57 +1,64 @@
 # Task'n'drop
+<!-- changelog-format: 2 -->
 The Task'n'drop plugin for GLPI
 
-## 4.0.0-beta.1 - 2026-10-08
-### Feature
-- GLPI 12 support
-- Drag'n'drop rebuilt for the GLPI 12 planning, now a Vue application without the former FullCalendar globals. Works in the week, day, month and timeline views, and on touch screens
-- The calendar scrolls while dragging an item close to its edge
-- Escape cancels a drag
-### Security
-- Planning a task or reminder requires the right to update it. Any logged in user could plan any task or reminder from its id
-- Only the tasks of the active entities are listed, and only the tasks and reminders the user can see and update: private tasks require the right to see them, like in the GLPI planning
-- Strict validation of the planning request (item type, id and date)
-### Bugfix
-- Items are planned through the GLPI planning API, like moving an event: planning conflict warnings are displayed and items in the trash are rejected
-- Dates are sent without timezone: the dropped item could be planned at a shifted hour depending on the server timezone
-- "All users of a group" plannings listed the group tasks instead of the tasks of its users
-- External calendars were handled as groups
-- An item displayed by several plannings was listed several times
-- Tasks of deleted tickets and changes were listed
-- Paragraphs of a task were merged in its label
-### Changed
-- Class moved to src/ with the GlpiPlugin\Taskdrop namespace
-- List rendered with Twig, JavaScript and CSS moved to public/
-- Removed the CSRF compliance flag, GLPI 12 validates CSRF with request headers
-- Unique Composer autoloader suffix: GLPI 12 does not load a plugin whose autoloader class collides with another plugin's
-- Removed the unused chillerlan/php-qrcode dependency, the obsolete Travis configuration and a migration script of another plugin left in tools/
-- PHPStan configuration works both locally and in CI, without generic ignores
+## [Unreleased]
+_Working version: 4.0.0-beta.1, for GLPI 12. Includes all the fixes of 3.0.3._
 
-## 3.0.1 - 2026-09-08
-### Bugfix
+### Features
+- GLPI 12 support.
+- Tasks and reminders can be dropped in the week, day, month and timeline views of the new GLPI 12 planning.
+- Dragging works with a mouse and on touch screens.
+- The target time slot is highlighted while dragging.
+- The calendar scrolls when an item is dragged close to its edge.
+- Pressing Escape cancels a drag.
+- In the month view, a dropped item starts at the beginning of the working day.
+- Dropping an item shows the same planning conflict warnings as moving an event.
+
+### Bugs
+- "All users of a group" calendars listed the tasks of the group instead of the tasks of its members.
+- Displaying an external calendar could add unrelated tasks to the panel.
+- An item shown by several calendars appeared several times in the panel.
+- Tasks of tickets and changes in the trash appeared in the panel.
+- The paragraphs of a task were run together in the panel.
+- A dropped item could be planned at a shifted time depending on the server time zone.
+
+## [3.0.3] - 2026-10-23
+_3.0.1 and 3.0.2 were never published: their fixes ship in this release._
+
+### Bugs
+- Users could read and reschedule tasks and reminders they had no access to, including from the simplified interface.
+- The panel listed tasks and reminders from other entities, private tasks and other users' private reminders.
+- A task or reminder text could run a script in the Planning page of whoever displayed it.
+- A link opened by a logged-in user could reschedule a task or reminder without their consent.
+- A crafted planning colour could run a script in the user's own Planning page.
+- The panel now lists only the tasks and reminders the current user is allowed to reschedule.
+- Tasks of solved or closed changes no longer appear in the panel.
+- Dropping a reminder on the calendar no longer fails with an error.
+- Fix "Undefined array key color" warning when the planning filter "all users of a group" was active
 - Fix tasks with line breaks
 
-## 3.0.0 - 2026-01-21
-### Feature
+## [3.0.0] - 2026-01-21
+### Features
 - GLPI 11 support
 
-## 2.1.1 - 2025-02-04
-### Bugfixes
+## [2.1.1] - 2025-02-04
+### Bugs
 - Fix sanitize errors
 
-## 2.1.0 - 2024-10-22
+## [2.1.0] - 2024-10-22
 ### Features
 - Ticket tasks of non solved tickets
 - Non finished tasks
 - Non scheduled tasks
 
-## 2.0.0 - 2022-07-28
+## [2.0.0] - 2022-07-28
 ### Features
 - GLPI 10 Compatibility #10340
-### Bugfixes
+### Bugs
 - PHP Warning when selecting all users of a group at Planning view #6955
-  - Fix planning colors for groups over 15 users by @cconard96 in #12339
+- Fix planning colors for groups over 15 users by @cconard96 in #12339
 
-## 1.3.0 - 2022-07-27
+## [1.3.0] - 2022-07-27
 ### Features
 - Added support for change tasks
