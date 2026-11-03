@@ -36,7 +36,7 @@
 use Glpi\Plugin\Hooks;
 use GlpiPlugin\Taskdrop\Calendar;
 
-define('PLUGIN_TASKDROP_VERSION', '4.0.0-beta.1');
+define('PLUGIN_TASKDROP_VERSION', '4.0.0');
 // Minimal GLPI version, inclusive
 define("PLUGIN_TASKDROP_MIN_GLPI", "12.0.0");
 // Maximum GLPI version, exclusive

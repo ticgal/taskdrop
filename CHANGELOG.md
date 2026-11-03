@@ -3,7 +3,9 @@
 The Task'n'drop plugin for GLPI
 
 ## [Unreleased]
-_Working version: 4.0.0-beta.1, for GLPI 12. Includes all the fixes of 3.0.3._
+
+## [4.0.0] - 2026-11-03
+_First release for GLPI 12. Includes all the fixes of 3.0.3._
 
 ### Features
 - GLPI 12 support.
