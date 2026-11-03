@@ -4,6 +4,27 @@ The Task'n'drop plugin for GLPI
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-11-03
+_First release for GLPI 12. Includes all the fixes of 3.0.3._
+
+### Features
+- GLPI 12 support.
+- Tasks and reminders can be dropped in the week, day, month and timeline views of the new GLPI 12 planning.
+- Dragging works with a mouse and on touch screens.
+- The target time slot is highlighted while dragging.
+- The calendar scrolls when an item is dragged close to its edge.
+- Pressing Escape cancels a drag.
+- In the month view, a dropped item starts at the beginning of the working day.
+- Dropping an item shows the same planning conflict warnings as moving an event.
+
+### Bugs
+- "All users of a group" calendars listed the tasks of the group instead of the tasks of its members.
+- Displaying an external calendar could add unrelated tasks to the panel.
+- An item shown by several calendars appeared several times in the panel.
+- Tasks of tickets and changes in the trash appeared in the panel.
+- The paragraphs of a task were run together in the panel.
+- A dropped item could be planned at a shifted time depending on the server time zone.
+
 ## [3.0.3] - 2026-10-23
 _3.0.1 and 3.0.2 were never published: their fixes ship in this release._
 

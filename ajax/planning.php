@@ -34,81 +34,37 @@
  @since     2018
  ---------------------------------------------------------------------- */
 
-include("../../../inc/includes.php");
+use Glpi\Exception\Http\AccessDeniedHttpException;
+use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Taskdrop\Calendar;
 
-header('Content-Type: application/json');
-
-// The planning panel is a central-interface feature
+// The planning is a feature of the standard interface
 Session::checkCentralAccess();
 
-// Write actions must only run on POST so the kernel CSRF check applies
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    exit;
+if (!Planning::canView()) {
+    throw new AccessDeniedHttpException();
 }
 
-if (!isset($_POST["action"])) {
-    exit;
+switch ($_REQUEST['action'] ?? '') {
+    case 'list':
+        header('Content-Type: text/html; charset=UTF-8');
+        echo Calendar::renderList();
+        break;
+
+    case 'plan':
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            throw new BadRequestHttpException();
+        }
+        $itemtype = $_POST['itemtype'] ?? null;
+        $items_id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $start    = $_POST['start'] ?? null;
+        if (!is_string($itemtype) || $items_id === false || !is_string($start)) {
+            throw new BadRequestHttpException();
+        }
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['success' => Calendar::plan($itemtype, $items_id, $start)]);
+        break;
+
+    default:
+        throw new BadRequestHttpException();
 }
-
-$action = $_POST["action"];
-
-if ($action == "update_task") {
-    $div  = PluginTaskdropCalendar::addTask();
-    $div .= PluginTaskdropCalendar::addReminder();
-    echo $div;
-    exit;
-}
-
-$itemtypes = [
-    'add_tickettask' => TicketTask::class,
-    'add_changetask' => ChangeTask::class,
-    'add_reminder'   => Reminder::class,
-];
-if (!isset($itemtypes[$action])) {
-    http_response_code(400);
-    exit;
-}
-
-$id    = is_numeric($_POST["id"] ?? null) ? (int) $_POST["id"] : 0;
-$start = is_string($_POST["start"] ?? null) ? strtotime($_POST["start"]) : false;
-if ($id <= 0 || $start === false) {
-    http_response_code(400);
-    exit;
-}
-
-$item = new $itemtypes[$action]();
-if (!$item->can($id, READ) || !$item->can($id, UPDATE)) {
-    http_response_code(403);
-    exit;
-}
-
-if ($item instanceof CommonITILTask) {
-    $actiontime = $item->fields['actiontime'] > 0 ? (int) $item->fields['actiontime'] : 1800;
-    $input = [
-        'id'            => $id,
-        'begin'         => date("Y-m-d H:i:s", $start),
-        'end'           => date("Y-m-d H:i:s", $start + $actiontime),
-        'actiontime'    => $actiontime,
-        'users_id_tech' => $item->fields['users_id_tech'],
-    ];
-} else {
-    $input = [
-        'id'         => $id,
-        'begin'      => date("Y-m-d H:i:s", $start),
-        'end'        => date("Y-m-d H:i:s", $start + 1800),
-        'is_planned' => 1,
-    ];
-}
-
-if (!$item->update($input)) {
-    http_response_code(500);
-    exit;
-}
-
-echo json_encode([
-    'itemtype' => $item::class,
-    'items_id' => $id,
-    'start'    => $input['begin'],
-    'end'      => $input['end'],
-]);
